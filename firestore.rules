@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Usuarios: solo pueden leer/escribir su propio documento
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    
+    // Categorías: usuarios solo pueden acceder a sus propias categorías
+    match /users/{uid}/categories/{categoryId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    
+    // Gastos: usuarios solo pueden acceder a sus propios gastos
+    match /users/{uid}/expenses/{expenseId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    
+    // Planes: lectura global, solo administradores pueden escribir
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}
+
+

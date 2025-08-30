@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Header con categoría seleccionada -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:id="@+id/tvSelectedCategoryIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:textSize="24sp"
+            android:text="🍕"
+            android:background="@drawable/circle_background"
+            android:layout_marginEnd="12dp" />
+
+        <TextView
+            android:id="@+id/tvSelectedCategoryName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Comida"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
+
+        <ImageButton
+            android:id="@+id/btnCloseAmountInput"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Cerrar"
+            app:tint="@color/black" />
+
+    </LinearLayout>
+
+    <!-- Display del monto -->
+    <TextView
+        android:id="@+id/tvAmountDisplay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="$0.00"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/amount_display_background"
+        android:padding="16dp" />
+
+    <!-- Teclado numérico -->
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="4"
+        android:alignmentMode="alignMargins"
+        android:useDefaultMargins="true">
+
+        <!-- Primera fila: 1, 2, 3 -->
+        <Button
+            android:id="@+id/btn1"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="1"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btn2"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="2"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btn3"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="3"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <!-- Segunda fila: 4, 5, 6 -->
+        <Button
+            android:id="@+id/btn4"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="4"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btn5"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="5"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btn6"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="6"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <!-- Tercera fila: 7, 8, 9 -->
+        <Button
+            android:id="@+id/btn7"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="7"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btn8"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="8"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btn9"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="9"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <!-- Cuarta fila: ., 0, ← -->
+        <Button
+            android:id="@+id/btnDecimal"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="."
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btn0"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="0"
+            android:textSize="24sp"
+            android:background="@drawable/numeric_button_background"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/btnBackspace"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_columnWeight="1"
+            android:text="←"
+            android:textSize="24sp"
+            android:background="@drawable/backspace_button_background"
+            android:textColor="@color/black" />
+
+    </GridLayout>
+
+    <!-- Botón Guardar -->
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Guardar Gasto"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:background="@drawable/button_primary"
+        android:textColor="@color/black"
+        android:layout_marginTop="24dp"
+        android:enabled="false" />
+
+</LinearLayout>

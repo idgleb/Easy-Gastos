@@ -1,0 +1,28 @@
+# IDE / Editor
+*.iml
+/.idea/
+
+# Gradle
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+/gradle/
+
+# Android local config
+/local.properties
+
+# Construcción
+/app/build/
+**/build/
+
+# Archivos del sistema
+.DS_Store
+
+# Capturas
+/captures/
+
+# NDK / C++
+.externalNativeBuild
+.cxx
+
+# Logs
+*.log
