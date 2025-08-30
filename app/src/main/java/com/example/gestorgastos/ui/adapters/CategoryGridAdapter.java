@@ -83,3 +83,4 @@ public class CategoryGridAdapter extends ListAdapter<CategoryEntity, CategoryGri
         }
     }
 }
+
