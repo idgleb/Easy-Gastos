@@ -44,6 +44,7 @@ dependencies {
     
     // Room
     implementation(libs.room.runtime)
+    implementation(libs.activity)
     annotationProcessor(libs.room.compiler)
     
     implementation(libs.workmanager)

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GestorGastos</string>
+    <string name="greeting_user">Hola, %1$s</string>
 </resources>

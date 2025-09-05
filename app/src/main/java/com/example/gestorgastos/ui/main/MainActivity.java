@@ -8,8 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,6 +24,7 @@ import com.example.gestorgastos.ui.categories.CategoriesFragment;
 import com.example.gestorgastos.ui.dashboard.DashboardFragment;
 import com.example.gestorgastos.ui.expenses.ExpensesFragment;
 import com.example.gestorgastos.ui.dialogs.AccountBottomSheet;
+import com.example.gestorgastos.util.NavBarUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -32,12 +37,16 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // Forzar modo claro
-        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
-        
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+        NavBarUtils.aplicarEstiloNavBar(this);
+        // Forzar modo claro
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -116,8 +125,9 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     private void observeViewModel() {
         viewModel.getCurrentUser().observe(this, user -> {
             if (user != null) {
-                // Actualizar el saludo en el AppBar personalizado
-                binding.customAppbar.tvUserGreeting.setText("Hola, " + user.name);
+                // Actualizar el saludo en el AppBar personalizado usando recurso string
+                String saludo = getString(R.string.greeting_user, user.name);
+                binding.customAppbar.tvUserGreeting.setText(saludo);
             }
         });
     }
@@ -163,5 +173,3 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         finish();
     }
 }
-
-
