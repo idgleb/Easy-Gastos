@@ -13,4 +13,38 @@
     <color name="orange">#FFFF9800</color>
     <color name="appbar_blue">#FF009EE3</color>
     <color name="fondo_frame">#F4F4F4</color>
+
+
+    <color name="gris_icono">#212121</color>
+    <color name="gris">#949494</color>
+    <color name="gris_checkbox">#B4B4B4</color>
+    <color name="gris_lineas">#E0E0E0</color>
+    <color name="gris_categorias">#E0E0E0</color>
+    <color name="oval">#EDEDED</color>
+    <color name="gris_light">#F4F4F4</color>
+    <color name="gris_mover">#EFEFEF</color>
+    <color name="gris_redondo">#C1C1C1</color>
+    <color name="fondo_scroll">#F4F4F4</color>
+    <color name="blue_principal">#009ee3</color>
+    <color name="blue_light">#BFECFF</color>
+    <color name="blue_light2">#EAF7FD</color>
+    <color name="fondo_principal">#006FA0</color>
+    <color name="boton_secundario">#64c4ec</color>
+    <color name="boton_transporente">#0086B4FF</color>
+    <color name="boton_secundario2">#479AD1</color>
+    <color name="text_boton">#FFFFFF</color>
+    <color name="mercadopago">#00A650</color>
+    <color name="rojo">#A60000</color>
+    <color name="primary_color">#009EE3</color> <!-- Color principal para el tema -->
+    <color name="background_color">#F4F4F4</color> <!-- Fondo claro y moderno -->
+    
+    <!-- Colores Material 3 para BottomNavigationView -->
+    <color name="bottom_nav_surface">#FFFFFF</color> <!-- Fondo del BottomNavigationView -->
+    <color name="bottom_nav_surface_variant">#F5F5F5</color> <!-- Fondo alternativo -->
+    <color name="bottom_nav_on_surface">#1C1B1F</color> <!-- Texto e iconos no seleccionados -->
+    <color name="bottom_nav_on_surface_variant">#49454F</color> <!-- Texto e iconos secundarios -->
+    <color name="bottom_nav_primary">#009EE3</color> <!-- Color primario para selección -->
+    <color name="bottom_nav_on_primary">#FFFFFF</color> <!-- Texto e iconos sobre color primario -->
+    <color name="bottom_nav_outline">#E7E0EC</color> <!-- Borde sutil -->
+    <color name="bottom_nav_elevation">#000000</color> <!-- Sombra sutil -->
 </resources>

@@ -1,125 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:background="?attr/colorSurface">
 
-    <LinearLayout
+    <!-- Fondo con gradiente sutil -->
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center">
+        android:layout_height="match_parent"
+        android:background="@drawable/auth_background_gradient" />
 
-        <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@drawable/ic_launcher_foreground"
-            android:layout_marginBottom="32dp"
-            android:contentDescription="@string/app_name" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="48dp"
-            android:textColor="?attr/colorPrimary" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_email"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="Email"
-            app:startIconDrawable="@android:drawable/ic_dialog_email">
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="0dp"
+            android:minHeight="0dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_email"
-                android:layout_width="match_parent"
+            <!-- Logo y título de la app -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
-                android:maxLines="1" />
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="8dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <ImageView
+                    android:id="@+id/iv_app_logo"
+                    style="@style/AuthAppLogo"
+                    android:src="@drawable/ic_app_logo"
+                    android:contentDescription="@string/app_name" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="Contraseña"
-            app:startIconDrawable="@android:drawable/ic_lock_lock"
-            app:endIconMode="password_toggle">
+                <TextView
+                    android:id="@+id/tv_app_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/AuthAppTitle"
+                    android:text="@string/app_name"
+                    android:padding="10dp"
+                    android:layout_marginBottom="8dp" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_password"
+                <TextView
+                    android:id="@+id/tv_app_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/AuthSubtitle"
+                    android:text="Gestiona tus gastos de manera inteligente"
+                    android:layout_marginBottom="16dp" />
+
+            </LinearLayout>
+
+            <!-- Card del formulario -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_auth_form"
+                style="@style/AuthFormCard"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="32dp">
+
+                    <!-- Campo de email -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/AuthTextInputLayout"
+                        android:hint="Correo electrónico"
+                        app:startIconDrawable="@drawable/ic_email_auth"
+                        app:helperTextEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_email"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/AuthTextInputEditText"
+                            android:inputType="textEmailAddress"
+                            android:maxLines="1"
+                            android:imeOptions="actionNext" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Campo de contraseña -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/AuthTextInputLayout"
+                        android:hint="Contraseña(min 6 caracteres)"
+                        app:startIconDrawable="@drawable/ic_lock_auth"
+                        app:endIconDrawable="@drawable/ic_visibility_off_auth"
+                        app:endIconMode="custom"
+
+                        app:helperTextEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_password"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/AuthTextInputEditText"
+                            android:inputType="textPassword"
+                            android:maxLines="1"
+                            android:imeOptions="actionDone" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Campo de nombre (solo para registro) -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/AuthTextInputLayout"
+                        android:hint="Nombre completo"
+                        android:visibility="gone"
+                        app:startIconDrawable="@drawable/ic_person_auth"
+                        app:helperTextEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/AuthTextInputEditText"
+                            android:inputType="textPersonName"
+                            android:maxLines="1"
+                            android:imeOptions="actionNext" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Botón principal -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_sign_in"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        style="@style/AuthPrimaryButton"
+                        android:text="Iniciar Sesión"
+                        android:layout_marginTop="16dp"
+                        app:icon="@drawable/ic_chevron_right"
+                        app:iconGravity="textEnd"
+                        app:iconPadding="8dp" />
+
+                    <!-- ProgressBar -->
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progress_bar"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        style="@style/AuthProgressBar"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="16dp"
+                        android:visibility="gone"
+                        app:indicatorColor="?attr/colorPrimary"
+                        app:trackColor="?attr/colorSurfaceVariant" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Texto de cambio de modo -->
+            <TextView
+                android:id="@+id/tv_mode"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:maxLines="1" />
+                style="@style/AuthModeText"
+                android:text="¿No tienes cuenta? Regístrate"
+                android:layout_marginTop="24dp" />
 
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:hint="Nombre"
-            android:visibility="gone"
-            app:startIconDrawable="@android:drawable/ic_menu_myplaces">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_name"
-                android:layout_width="match_parent"
+            <!-- Información adicional -->
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:maxLines="1" />
+                android:text="Al continuar, aceptas nuestros términos de servicio"
+                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginTop="32dp"
+                android:gravity="center"
+                android:alpha="0.7" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_sign_in"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Iniciar Sesión"
-            android:textSize="16sp"
-            app:cornerRadius="8dp" />
+    </ScrollView>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_sign_up"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Crear Cuenta"
-            android:textSize="16sp"
-            android:visibility="gone"
-            app:cornerRadius="8dp" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-        <TextView
-            android:id="@+id/tv_mode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="¿No tienes cuenta? Regístrate"
-            android:textColor="?attr/colorPrimary"
-            android:layout_marginTop="16dp"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground" />
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-</ScrollView>
 
 
 

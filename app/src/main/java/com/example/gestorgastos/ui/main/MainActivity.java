@@ -4,11 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -21,18 +19,28 @@ import com.example.gestorgastos.R;
 import com.example.gestorgastos.databinding.ActivityMainBinding;
 import com.example.gestorgastos.ui.auth.AuthActivity;
 import com.example.gestorgastos.ui.categories.CategoriesFragment;
+import com.example.gestorgastos.ui.categories.CategoryViewModel;
 import com.example.gestorgastos.ui.dashboard.DashboardFragment;
 import com.example.gestorgastos.ui.expenses.ExpensesFragment;
 import com.example.gestorgastos.ui.dialogs.AccountBottomSheet;
-import com.example.gestorgastos.util.NavBarUtils;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
-
-import java.util.Objects;
+import com.example.gestorgastos.data.local.entity.CategoryEntity;
+import java.util.List;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements AccountBottomSheet.OnAccountActionListener {
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
+    
+    // Constantes para identificar fragmentos
+    private static final int FRAGMENT_EXPENSES = 0;
+    private static final int FRAGMENT_DASHBOARD = 1;
+    private static final int FRAGMENT_CATEGORIES = 2;
+    
+    // Variable para rastrear el fragmento actual
+    private int currentFragment = FRAGMENT_EXPENSES;
+    
+    // Caché compartida de categorías
+    private List<CategoryEntity> sharedCategoryCache = new ArrayList<>();
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +52,10 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        NavBarUtils.aplicarEstiloNavBar(this);
+        // Configurar NavigationBar para MainActivity
+        if (getWindow() != null) {
+            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+        }
         // Forzar modo claro
         androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         
@@ -60,6 +71,9 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         if (savedInstanceState == null) {
             loadFragment(new ExpensesFragment());
         }
+        
+        // Configurar comportamiento del BottomNavigationView
+        setupBottomNavigationBehavior();
     }
 
     private void initHeightDeSvInfo() {
@@ -85,24 +99,10 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     }
     
     private void setupNavigation() {
-        binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            Fragment fragment = null;
-            
-            if (item.getItemId() == R.id.nav_home) {
-                fragment = new ExpensesFragment();
-            } else if (item.getItemId() == R.id.nav_dashboard) {
-                fragment = new DashboardFragment();
-            } else if (item.getItemId() == R.id.nav_categories) {
-                fragment = new CategoriesFragment();
-            }
-            
-            if (fragment != null) {
-                loadFragment(fragment);
-                return true;
-            }
-            
-            return false;
-        });
+        // Configurar el item seleccionado inicialmente
+        binding.bottomNavigation.setSelectedItemId(R.id.nav_expenses);
+        // Inicializar el fragmento actual
+        currentFragment = FRAGMENT_EXPENSES;
     }
     
     private void setupUserInfo() {
@@ -114,6 +114,97 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commit();
+    }
+    
+    /**
+     * Carga un fragmento con animaciones inteligentes basadas en la dirección de navegación
+     * @param fragment El fragmento a cargar
+     * @param targetFragment El ID del fragmento destino
+     */
+    private void loadFragmentWithSmartAnimation(Fragment fragment, int targetFragment) {
+        int enterAnim, exitAnim, popEnterAnim, popExitAnim;
+        
+        // Determinar la dirección de la animación basada en la navegación
+        if (currentFragment < targetFragment) {
+            // Navegando hacia la derecha (Gastos -> Dashboard -> Categorías)
+            enterAnim = R.anim.slide_in_from_right;
+            exitAnim = R.anim.slide_out_to_left;
+            popEnterAnim = R.anim.slide_in_from_left;
+            popExitAnim = R.anim.slide_out_to_right;
+        } else if (currentFragment > targetFragment) {
+            // Navegando hacia la izquierda (Categorías -> Dashboard -> Gastos)
+            enterAnim = R.anim.slide_in_from_left;
+            exitAnim = R.anim.slide_out_to_right;
+            popEnterAnim = R.anim.slide_in_from_right;
+            popExitAnim = R.anim.slide_out_to_left;
+        } else {
+            // Mismo fragmento (no debería pasar, pero por seguridad)
+            enterAnim = R.anim.slide_in_right;
+            exitAnim = R.anim.slide_out_left;
+            popEnterAnim = R.anim.slide_in_left;
+            popExitAnim = R.anim.slide_out_right;
+        }
+        
+        // Aplicar la transición con animaciones inteligentes
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(enterAnim, exitAnim, popEnterAnim, popExitAnim)
+                .replace(R.id.fragment_container, fragment)
+                .commit();
+        
+        // Actualizar el fragmento actual
+        currentFragment = targetFragment;
+
+    }
+    
+    private void setupBottomNavigationBehavior() {
+        // Configurar comportamiento del BottomNavigationView
+        binding.bottomNavigation.setOnItemReselectedListener(item -> {
+            // Manejar cuando se selecciona el mismo item (scroll to top, refresh, etc.)
+            Fragment currentFragment = getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_container);
+            
+            if (currentFragment != null) {
+                // Aquí puedes agregar lógica específica para cada fragmento
+                // Por ejemplo, scroll to top en RecyclerView
+                if (currentFragment instanceof ExpensesFragment) {
+                    // TODO: Implementar scroll to top en ExpensesFragment
+                } else if (currentFragment instanceof CategoriesFragment) {
+                    // TODO: Implementar scroll to top en CategoriesFragment
+                } else if (currentFragment instanceof DashboardFragment) {
+                    // TODO: Implementar refresh en DashboardFragment
+                }
+            }
+        });
+        
+        // Configurar animación de selección
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            // Agregar feedback háptico
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                binding.bottomNavigation.performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM);
+            }
+            
+            Fragment fragment = null;
+            int targetFragment = -1;
+            
+            if (item.getItemId() == R.id.nav_expenses) {
+                fragment = new ExpensesFragment();
+                targetFragment = FRAGMENT_EXPENSES;
+            } else if (item.getItemId() == R.id.nav_dashboard) {
+                fragment = new DashboardFragment();
+                targetFragment = FRAGMENT_DASHBOARD;
+            } else if (item.getItemId() == R.id.nav_categories) {
+                fragment = new CategoriesFragment();
+                targetFragment = FRAGMENT_CATEGORIES;
+            }
+            
+            if (fragment != null && targetFragment != -1) {
+                loadFragmentWithSmartAnimation(fragment, targetFragment);
+                return true;
+            }
+            
+            return false;
+        });
     }
     
     private void showAccountSheet() {
@@ -128,6 +219,9 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
                 // Actualizar el saludo en el AppBar personalizado usando recurso string
                 String saludo = getString(R.string.greeting_user, user.name);
                 binding.customAppbar.tvUserGreeting.setText(saludo);
+                
+                // Las categorías ahora se manejan reactivamente en cada fragmento
+                // No necesitamos caché manual en MainActivity
             }
         });
     }
@@ -171,5 +265,21 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+    
+    // Métodos para manejar la caché compartida de categorías (DEPRECATED - ahora se usa LiveData reactivo)
+    
+    /**
+     * Obtiene la caché compartida de categorías (DEPRECATED)
+     */
+    public List<CategoryEntity> getSharedCategoryCache() {
+        return sharedCategoryCache; // Mantenido para compatibilidad
+    }
+    
+    /**
+     * Notifica a los fragmentos que la caché de categorías se ha actualizado (DEPRECATED)
+     */
+    private void notifyFragmentsCategoryCacheUpdated() {
+        // Ya no es necesario, se usa LiveData reactivo automáticamente
     }
 }

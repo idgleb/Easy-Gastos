@@ -15,6 +15,8 @@ import com.example.gestorgastos.util.DateTimeUtil;
 import com.example.gestorgastos.ui.main.MainViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.example.gestorgastos.util.NavBarUtils;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -60,11 +62,64 @@ public class AmountInputBottomSheet extends BottomSheetDialogFragment {
         updateAmountDisplay();
     }
     
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Configurar el comportamiento del BottomSheet después de que esté completamente creado
+        setupBottomSheetBehavior();
+        
+        // Mantener NavigationBar con fondo negro usando NavBarUtils
+        NavBarUtils.setConsistentNavBarColors(getDialog(), requireContext());
+    }
+    
+    private void setupBottomSheetBehavior() {
+        // Configurar el BottomSheetBehavior para que aparezca más arriba
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            try {
+                // Obtener el BottomSheetBehavior
+                BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) binding.getRoot().getParent());
+                
+                // Configurar el comportamiento para que aparezca más arriba
+                behavior.setPeekHeight(0); // Sin altura mínima
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED); // Expandido por defecto
+                behavior.setSkipCollapsed(true); // Saltar el estado colapsado
+                behavior.setHideable(true); // Permitir ocultar
+                behavior.setDraggable(true); // Permitir arrastrar
+                
+                // Configurar la ventana del diálogo
+                getDialog().getWindow().setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                
+                // Configurar para que aparezca más arriba
+                getDialog().getWindow().setGravity(android.view.Gravity.BOTTOM);
+                
+                // Ajustar el padding del sistema para que aparezca más arriba
+                if (getDialog().getWindow().getDecorView() != null) {
+                    getDialog().getWindow().getDecorView().setPadding(0, 0, 0, 0);
+                }
+                
+                Log.d("AmountInputBottomSheet", "BottomSheetBehavior configurado para aparecer más arriba");
+                
+            } catch (Exception e) {
+                Log.e("AmountInputBottomSheet", "Error al configurar BottomSheetBehavior", e);
+                
+                // Fallback: configurar solo la ventana
+                getDialog().getWindow().setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                getDialog().getWindow().setGravity(android.view.Gravity.BOTTOM);
+            }
+        }
+    }
+    
     private void setupViews() {
         // Configurar información de la categoría seleccionada
         if (selectedCategory != null) {
             binding.tvSelectedCategoryName.setText(selectedCategory.name);
-            if (selectedCategory.icono != null && !selectedCategory.icono.isEmpty() && !selectedCategory.icono.equals("default")) {
+            if (!selectedCategory.icono.isEmpty() && !selectedCategory.icono.equals("default")) {
                 binding.tvSelectedCategoryIcon.setText(selectedCategory.icono);
             } else {
                 binding.tvSelectedCategoryIcon.setText("⭐");

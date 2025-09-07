@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    
+    <!-- Fondo circular -->
+    <path
+        android:fillColor="?attr/colorPrimary"
+        android:pathData="M60,60m-60,0a60,60 0,1 1,120 0a60,60 0,1 1,-120 0" />
+    
+    <!-- Icono de dinero/gasto -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M60,25c-19.33,0 -35,15.67 -35,35s15.67,35 35,35s35,-15.67 35,-35S79.33,25 60,25zM60,85c-13.81,0 -25,-11.19 -25,-25s11.19,-25 25,-25s25,11.19 25,25S73.81,85 60,85z" />
+    
+    <!-- Símbolo de peso/dólar -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M60,35v5c8.28,0 15,6.72 15,15s-6.72,15 -15,15v10h-5v-10c-8.28,0 -15,-6.72 -15,-15h5c0,5.52 4.48,10 10,10s10,-4.48 10,-10s-4.48,-10 -10,-10v-5H60z" />
+    
+</vector>

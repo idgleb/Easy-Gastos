@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">GestorGastos</string>
     <string name="greeting_user">Hola, %1$s</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Contraseña</string>
+    <string name="hint_name">Nombre</string>
+    <string name="btn_sign_in">Iniciar Sesión</string>
+    <string name="btn_sign_up">Crear Cuenta</string>
+    <string name="tv_mode">¿No tienes cuenta? Regístrate</string>
 </resources>

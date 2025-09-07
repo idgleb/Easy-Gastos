@@ -1,49 +1,87 @@
 package com.example.gestorgastos.util;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.os.Build;
-import android.view.Window;
-import android.view.WindowInsetsController;
 import android.content.Context;
+import android.graphics.Color;
+import androidx.annotation.ColorInt;
 
-public final class NavBarUtils {
-    private NavBarUtils() { /* Utility class */ }
-
-    public static void aplicarEstiloNavBar(Object source) {
-        Window window = null;
-        if (source instanceof Activity) {
-            window = ((Activity) source).getWindow();
-        } else if (source instanceof Dialog) {
-            window = ((Dialog) source).getWindow();
-        } else if (source instanceof Window) {
-            window = (Window) source;
+/**
+ * Utilidad para manejar la configuración de la NavigationBar y StatusBar
+ * en BottomSheets y otros componentes de la UI.
+ */
+public class NavBarUtils {
+    
+    /**
+     * Configura la NavigationBar y StatusBar para mantener colores consistentes
+     * cuando se muestran BottomSheets.
+     * 
+     * @param dialog El diálogo del BottomSheet
+     * @param context El contexto de la aplicación
+     */
+    public static void setConsistentNavBarColors(Dialog dialog, Context context) {
+        if (dialog != null && dialog.getWindow() != null) {
+            // Mantener NavigationBar con fondo negro
+            dialog.getWindow().setNavigationBarColor(Color.BLACK);
         }
-        if (window == null) return;
-
-        Context context = window.getContext();
-        int blackColor;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            blackColor = context.getColor(android.R.color.black);
-        } else {
-            blackColor = context.getResources().getColor(android.R.color.black);
+    }
+    
+    /**
+     * Configura la NavigationBar con un color específico.
+     * 
+     * @param dialog El diálogo del BottomSheet
+     * @param color El color a aplicar (usar Color.BLACK, Color.WHITE, etc.)
+     */
+    public static void setNavigationBarColor(Dialog dialog, @ColorInt int color) {
+        if (dialog != null && dialog.getWindow() != null) {
+            dialog.getWindow().setNavigationBarColor(color);
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // Android 11+
-            window.setNavigationBarContrastEnforced(false);
-            window.setNavigationBarColor(blackColor);
-            WindowInsetsController insetsController = window.getInsetsController();
-            if (insetsController != null) {
-                insetsController.setSystemBarsAppearance(
-                        0,
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-                );
-            }
-        } else {
-            // Android 8.1 - 10
-            window.setNavigationBarColor(blackColor);
-            window.getDecorView().setSystemUiVisibility(0);
+    }
+    
+    /**
+     * Configura la StatusBar con un color específico.
+     * 
+     * @param dialog El diálogo del BottomSheet
+     * @param color El color a aplicar (usar Color.BLACK, Color.WHITE, etc.)
+     */
+    public static void setStatusBarColor(Dialog dialog, @ColorInt int color) {
+        if (dialog != null && dialog.getWindow() != null) {
+            dialog.getWindow().setStatusBarColor(color);
+        }
+    }
+    
+    /**
+     * Configura tanto NavigationBar como StatusBar con colores específicos.
+     * 
+     * @param dialog El diálogo del BottomSheet
+     * @param navBarColor Color para la NavigationBar
+     * @param statusBarColor Color para la StatusBar
+     */
+    public static void setBothBarColors(Dialog dialog, @ColorInt int navBarColor, @ColorInt int statusBarColor) {
+        if (dialog != null && dialog.getWindow() != null) {
+            dialog.getWindow().setNavigationBarColor(navBarColor);
+            dialog.getWindow().setStatusBarColor(statusBarColor);
+        }
+    }
+    
+    /**
+     * Configura la NavigationBar para que sea transparente.
+     * 
+     * @param dialog El diálogo del BottomSheet
+     */
+    public static void setTransparentNavigationBar(Dialog dialog) {
+        if (dialog != null && dialog.getWindow() != null) {
+            dialog.getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        }
+    }
+    
+    /**
+     * Configura la StatusBar para que sea transparente.
+     * 
+     * @param dialog El diálogo del BottomSheet
+     */
+    public static void setTransparentStatusBar(Dialog dialog) {
+        if (dialog != null && dialog.getWindow() != null) {
+            dialog.getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
     }
 }
-

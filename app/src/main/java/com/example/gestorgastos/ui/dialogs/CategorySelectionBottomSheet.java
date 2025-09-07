@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.gestorgastos.databinding.BottomSheetCategorySelectionBinding;
 import com.example.gestorgastos.data.local.entity.CategoryEntity;
 import com.example.gestorgastos.ui.adapters.CategoryGridAdapter;
@@ -16,6 +18,8 @@ import com.example.gestorgastos.ui.categories.CategoryViewModel;
 import com.example.gestorgastos.ui.main.MainViewModel;
 import android.util.Log;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.example.gestorgastos.util.NavBarUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +47,7 @@ public class CategorySelectionBottomSheet extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = BottomSheetCategorySelectionBinding.inflate(inflater, container, false);
+
         return binding.getRoot();
     }
     
@@ -56,6 +61,16 @@ public class CategorySelectionBottomSheet extends BottomSheetDialogFragment {
         
         setupViews();
         observeViewModel();
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Mantener NavigationBar con fondo negro usando NavBarUtils
+        NavBarUtils.setConsistentNavBarColors(getDialog(), requireContext());
+        
+        // Configurar comportamiento personalizado del BottomSheet
+        setupBottomSheetBehavior();
     }
     
     private void setupViews() {
@@ -144,6 +159,27 @@ public class CategorySelectionBottomSheet extends BottomSheetDialogFragment {
         exampleCategories.add(cat6);
         
         adapter.submitList(exampleCategories);
+    }
+    
+    /**
+     * Configura el comportamiento del BottomSheet con NestedScrollView
+     */
+    private void setupBottomSheetBehavior() {
+        try {
+            View bottomSheet = getDialog().findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+                
+                // Configurar el BottomSheet para que funcione con NestedScrollView
+                behavior.setDraggable(true);
+                behavior.setHideable(true);
+                behavior.setSkipCollapsed(false);
+                
+                Log.d("CategorySelectionBottomSheet", "BottomSheet configurado con NestedScrollView");
+            }
+        } catch (Exception e) {
+            Log.e("CategorySelectionBottomSheet", "Error al configurar el BottomSheet", e);
+        }
     }
     
     @Override

@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.example.gestorgastos.databinding.FragmentCategoriesBinding;
 import com.example.gestorgastos.data.local.entity.CategoryEntity;
@@ -46,7 +46,7 @@ public class CategoriesFragment extends Fragment implements CategoryDialog.OnCat
     private void setupViews() {
         // Configurar RecyclerView
         adapter = new CategoryAdapter();
-        binding.rvCategories.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.rvCategories.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         binding.rvCategories.setAdapter(adapter);
         
         // Configurar click listeners del adaptador

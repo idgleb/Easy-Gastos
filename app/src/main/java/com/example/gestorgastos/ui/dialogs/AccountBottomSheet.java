@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.example.gestorgastos.databinding.BottomSheetAccountBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.example.gestorgastos.util.NavBarUtils;
 
 public class AccountBottomSheet extends BottomSheetDialogFragment {
     
@@ -50,6 +51,13 @@ public class AccountBottomSheet extends BottomSheetDialogFragment {
         setupViews();
     }
     
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Mantener NavigationBar con fondo negro usando NavBarUtils
+        NavBarUtils.setConsistentNavBarColors(getDialog(), requireContext());
+    }
+    
     private void setupViews() {
         // Configurar información del usuario
         binding.tvUserName.setText(userName);
@@ -87,5 +95,6 @@ public class AccountBottomSheet extends BottomSheetDialogFragment {
         binding = null;
     }
 }
+
 
 

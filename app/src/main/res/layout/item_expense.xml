@@ -43,7 +43,7 @@
                     android:text="Comida"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/gris_icono" />
 
                 <TextView
                     android:id="@+id/tvExpenseDate"
@@ -52,7 +52,7 @@
                     android:layout_marginTop="4dp"
                     android:text="15 Dic 2024, 14:30"
                     android:textSize="12sp"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/gris_icono" />
 
             </LinearLayout>
 
@@ -63,7 +63,7 @@
                 android:text="$1,000.00"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"
+                android:textColor="@color/gris_icono"
                 android:layout_gravity="center_vertical" />
 
         </LinearLayout>

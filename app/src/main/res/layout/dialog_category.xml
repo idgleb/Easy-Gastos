@@ -1,84 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="24dp"
+    android:background="@drawable/dialog_background">
 
-    <!-- Nombre de la categoría -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nombre de la categoría"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/etCategoryName"
+    <!-- Header con icono y título -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Ej: Comida, Transporte, Entretenimiento"
-        android:inputType="textCapSentences"
-        android:maxLines="1"
-        android:padding="12dp"
-        android:background="@drawable/edit_text_background"
-        android:layout_marginBottom="16dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
 
-    <!-- Icono de la categoría -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Icono (opcional)"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp" />
+        <TextView
+            android:id="@+id/ivDialogIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/dialog_icon_background"
+            android:gravity="center"
+            android:text="📝"
+            android:textSize="20sp"
+            android:layout_marginEnd="16dp" />
 
-    <EditText
-        android:id="@+id/etCategoryIcon"
+        <TextView
+            android:id="@+id/tvDialogTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Nueva Categoría"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+            android:textColor="?attr/colorOnSurface" />
+
+    </LinearLayout>
+
+    <!-- Campo de nombre -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilCategoryName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Ej: 🥤,⛽"
-        android:inputType="text"
-        android:maxLines="1"
-        android:padding="12dp"
-        android:background="@drawable/edit_text_background"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="16dp"
+        android:hint="Nombre de la categoría"
+        app:startIconDrawable="@drawable/ic_category_name"
+        app:startIconTint="?attr/colorPrimary"
+        app:boxStrokeColor="?attr/colorPrimary"
+        app:hintTextColor="?attr/colorPrimary"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etCategoryName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Selector de icono -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Icono de la categoría"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardIconSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeColor="?attr/colorOutline"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvSelectedIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/icon_selector_background"
+                    android:gravity="center"
+                    android:text="⭐"
+                    android:textSize="24sp"
+                    android:layout_marginEnd="16dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Toca para seleccionar icono"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                        android:textColor="?attr/colorOnSurface" />
+
+
+
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnIconSelector"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="Seleccionar icono"
+                    android:src="@drawable/ic_emoji_keyboard"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:tint="?attr/colorPrimary" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
 
     <!-- Botones -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end">
+        android:gravity="end"
+        android:layout_marginTop="8dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:text="Cancelar"
-            android:textColor="@color/black"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_marginEnd="16dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:padding="8dp" />
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            style="@style/Widget.Material3.Button.TextButton" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Guardar"
-            android:textColor="@color/white"
-            android:background="@drawable/button_primary"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:padding="12dp" />
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            app:icon="@drawable/ic_save"
+            app:iconGravity="textStart"
+            style="@style/Widget.Material3.Button" />
 
     </LinearLayout>
 
 </LinearLayout>
+
 
 

@@ -1,33 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="16dp"
-    android:background="?attr/selectableItemBackgroundBorderless">
+    android:padding="6dp"
+    >
 
-    <TextView
-        android:id="@+id/tvCategoryIcon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:textSize="32sp"
-        android:text="🍕"
-        android:background="@drawable/circle_background"
-        android:layout_marginBottom="8dp" />
 
-    <TextView
-        android:id="@+id/tvCategoryName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Comida"
-        android:textSize="12sp"
-        android:textColor="@color/black"
-        android:gravity="center"
-        android:maxLines="2"
-        android:ellipsize="end" />
+
+        <!-- Icono de categoría con Material 3 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/oval"
+            app:strokeWidth="0dp">
+
+            <TextView
+                android:id="@+id/tvCategoryIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textSize="28sp"
+                android:text="🍕"
+                android:textColor="?attr/colorOnPrimaryContainer" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Nombre de categoría con Material 3 Typography -->
+        <TextView
+            android:id="@+id/tvCategoryName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Comida"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:lineSpacingExtra="2dp" />
+
+
 
 </LinearLayout>
+
 
 

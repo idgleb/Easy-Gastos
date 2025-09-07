@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    
+    <!-- ===== ESTILOS PARA AUTH ACTIVITY ===== -->
+
+    <!-- Título principal de la app -->
+    <style name="AuthAppTitle">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+
+        <!-- “Falso stroke”: sombra 360° -->
+        <item name="android:shadowColor">@color/black</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">0</item>
+        <item name="android:shadowRadius">10</item>
+
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+
+    <!-- Subtítulo descriptivo -->
+    <style name="AuthSubtitle">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+    
+    <!-- Botón principal de autenticación -->
+    <style name="AuthPrimaryButton" parent="Widget.Material3.Button">
+        <item name="android:layout_height">56dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:elevation">4dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+    
+    <!-- Botón secundario (cambio de modo) -->
+    <style name="AuthSecondaryButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_height">48dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">?attr/colorOutline</item>
+    </style>
+    
+    <!-- TextInputLayout personalizado -->
+    <style name="AuthTextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="boxStrokeColor">?attr/colorOutline</item>
+        <item name="hintTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="startIconTint">?attr/colorPrimary</item>
+        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
+    </style>
+    
+    <!-- TextInputEditText personalizado -->
+    <style name="AuthTextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+    </style>
+    
+    <!-- Card para el formulario -->
+    <style name="AuthFormCard" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">24dp</item>
+        <item name="cardElevation">8dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceBright</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="android:layout_margin">6dp</item>
+    </style>
+    
+    <!-- Logo/Icono de la app -->
+    <style name="AuthAppLogo">
+        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_height">100dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+    
+    <!-- ProgressBar personalizado -->
+    <style name="AuthProgressBar" parent="Widget.Material3.CircularProgressIndicator">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="indicatorColor">?attr/colorPrimary</item>
+        <item name="trackColor">?attr/colorSurfaceVariant</item>
+        <item name="trackThickness">3dp</item>
+    </style>
+    
+    <!-- Texto de cambio de modo -->
+    <style name="AuthModeText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+    </style>
+    
+    <!-- ===== ANIMACIONES ===== -->
+    
+    <!-- Animación de entrada para el formulario -->
+    <style name="AuthFormAnimation">
+        <item name="android:duration">300</item>
+        <item name="android:interpolator">@android:anim/decelerate_interpolator</item>
+    </style>
+    
+    <!-- Animación de fade in -->
+    <style name="AuthFadeInAnimation">
+        <item name="android:duration">400</item>
+        <item name="android:interpolator">@android:anim/accelerate_decelerate_interpolator</item>
+    </style>
+    
+    <!-- Animación de slide up -->
+    <style name="AuthSlideUpAnimation">
+        <item name="android:duration">350</item>
+        <item name="android:interpolator">@android:anim/decelerate_interpolator</item>
+    </style>
+    
+    <!-- ===== ESTILOS PARA BOTTOM NAVIGATION VIEW ===== -->
+    
+    <!-- Estilo principal para BottomNavigationView Material 3 -->
+    <style name="BottomNavigationViewStyle" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/bottom_nav_surface</item>
+        <item name="itemIconTint">@color/bottom_nav_icon_tint</item>
+        <item name="itemTextColor">@color/bottom_nav_text_color</item>
+        <item name="android:elevation">8dp</item>
+        <item name="android:outlineProvider">bounds</item>
+    </style>
+    
+    
+    <!-- Estilo de texto para elementos activos -->
+    <style name="BottomNavTextAppearanceActive" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/bottom_nav_primary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- Estilo de texto para elementos inactivos -->
+    <style name="BottomNavTextAppearanceInactive" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/bottom_nav_on_surface_variant</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    
+    <!-- ===== ESTILOS PARA DIÁLOGOS ===== -->
+    
+    <!-- Tema para diálogos Material 3 -->
+    <style name="Material3DialogTheme" parent="ThemeOverlay.Material3.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+    </style>
+    
+    <!-- Animaciones para diálogos -->
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+    
+</resources>

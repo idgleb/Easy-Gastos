@@ -96,7 +96,7 @@ public class CategoryAdapter extends ListAdapter<CategoryEntity, CategoryAdapter
             tvName.setText(category.name);
             
             // Configurar icono - mostrar el emoji que el usuario ingresó
-            if (category.icono != null && !category.icono.isEmpty() && !category.icono.equals("default")) {
+            if (!category.icono.isEmpty() && !category.icono.equals("default")) {
                 // Si el usuario ingresó un emoji, mostrarlo directamente
                 ivIcon.setText(category.icono);
             } else {

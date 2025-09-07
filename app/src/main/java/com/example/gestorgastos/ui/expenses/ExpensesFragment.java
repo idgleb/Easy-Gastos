@@ -20,6 +20,7 @@ import com.example.gestorgastos.ui.dialogs.CategorySelectionBottomSheet;
 import com.example.gestorgastos.ui.dialogs.AmountInputBottomSheet;
 import com.example.gestorgastos.ui.categories.CategoryViewModel;
 import com.example.gestorgastos.ui.main.MainViewModel;
+import com.example.gestorgastos.ui.main.MainActivity;
 import com.example.gestorgastos.data.repository.CategoryRepositoryImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,9 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
     private MainViewModel mainViewModel;
     private ExpenseAdapter adapter;
     private List<CategoryEntity> categories = new ArrayList<>();
+    private List<ExpenseEntity> pendingExpenses = new ArrayList<>();
+    private boolean categoriesLoaded = false;
+    private boolean expensesLoaded = false;
     
     @Nullable
     @Override
@@ -89,18 +93,28 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
         // Observar usuario actual
         mainViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
-                // Observar lista de gastos del usuario actual
-                viewModel.getExpensesByUser(user.uid).observe(getViewLifecycleOwner(), expenses -> {
-                    adapter.submitList(expenses);
-                });
-                
                 // Debug: ver todas las categorías en la base de datos
                 ((CategoryRepositoryImpl) categoryViewModel.getCategoryRepository()).debugCategories(user.uid);
                 
-                // Observar categorías del usuario actual para el adapter (activas e inactivas)
+                // Observar categorías del usuario actual (reactivo automático)
                 categoryViewModel.getAllCategoriesByUser(user.uid).observe(getViewLifecycleOwner(), categories -> {
                     this.categories = categories != null ? categories : new ArrayList<>();
                     adapter.updateCategoryCache(this.categories);
+                    categoriesLoaded = true;
+                    Log.d("ExpensesFragment", "Categorías actualizadas reactivamente: " + this.categories.size());
+                    
+                    // Intentar mostrar gastos si ya están cargados
+                    tryShowExpenses();
+                });
+                
+                // Observar lista de gastos del usuario actual (reactivo automático)
+                viewModel.getExpensesByUser(user.uid).observe(getViewLifecycleOwner(), expenses -> {
+                    pendingExpenses = expenses != null ? expenses : new ArrayList<>();
+                    expensesLoaded = true;
+                    Log.d("ExpensesFragment", "Gastos actualizados reactivamente: " + pendingExpenses.size());
+                    
+                    // Intentar mostrar gastos si las categorías ya están cargadas
+                    tryShowExpenses();
                 });
             }
         });
@@ -151,6 +165,27 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
         Log.d("ExpensesFragment", "onExpenseSaved - ID: " + expense.idLocal + ", Monto: " + expense.monto);
         Log.d("ExpensesFragment", "Insertando nuevo gasto");
         viewModel.insertExpense(expense);
+    }
+    
+    /**
+     * Intenta mostrar los gastos solo cuando tanto las categorías como los gastos estén cargados
+     */
+    private void tryShowExpenses() {
+        if (categoriesLoaded && expensesLoaded && adapter != null) {
+            Log.d("ExpensesFragment", "Mostrando gastos - Categorías: " + categories.size() + ", Gastos: " + pendingExpenses.size());
+            adapter.submitList(pendingExpenses);
+        } else {
+            Log.d("ExpensesFragment", "Esperando datos - Categorías cargadas: " + categoriesLoaded + ", Gastos cargados: " + expensesLoaded);
+        }
+    }
+    
+    /**
+     * Método llamado cuando la caché de categorías se actualiza desde MainActivity
+     * (Mantenido para compatibilidad, pero ahora se usa LiveData reactivo)
+     */
+    public void onCategoryCacheUpdated(List<CategoryEntity> categories) {
+        // Ya no es necesario, se usa LiveData reactivo automáticamente
+        Log.d("ExpensesFragment", "onCategoryCacheUpdated llamado pero usando LiveData reactivo");
     }
     
     @Override

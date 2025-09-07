@@ -132,10 +132,20 @@ public class ExpenseAdapter extends ListAdapter<ExpenseEntity, ExpenseAdapter.Ex
             if (expense.categoryRemoteId != null && !expense.categoryRemoteId.isEmpty()) {
                 String categoryName = getCategoryNameFromId(expense.categoryRemoteId);
                 String categoryIcon = getCategoryIconFromId(expense.categoryRemoteId);
-                tvCategory.setText(categoryName);
-                tvCategoryIcon.setText(categoryIcon);
-                tvCategory.setVisibility(View.VISIBLE);
-                tvCategoryIcon.setVisibility(View.VISIBLE);
+                
+                // Solo mostrar si encontramos la categoría o si es una categoría de ejemplo
+                if (!categoryName.equals("Sin categoría") || isExampleCategory(expense.categoryRemoteId)) {
+                    tvCategory.setText(categoryName);
+                    tvCategoryIcon.setText(categoryIcon);
+                    tvCategory.setVisibility(View.VISIBLE);
+                    tvCategoryIcon.setVisibility(View.VISIBLE);
+                } else {
+                    // Si no encontramos la categoría y no es de ejemplo, mostrar "Cargando..."
+                    tvCategory.setText("Cargando...");
+                    tvCategoryIcon.setText("⏳");
+                    tvCategory.setVisibility(View.VISIBLE);
+                    tvCategoryIcon.setVisibility(View.VISIBLE);
+                }
             } else {
                 tvCategory.setText("Sin categoría");
                 tvCategoryIcon.setText("⭐");
@@ -184,6 +194,13 @@ public class ExpenseAdapter extends ListAdapter<ExpenseEntity, ExpenseAdapter.Ex
                 case "cat6": return "📦";
                 default: return "⭐";
             }
+        }
+        
+        // Método para verificar si es una categoría de ejemplo
+        private boolean isExampleCategory(String categoryId) {
+            return categoryId.equals("cat1") || categoryId.equals("cat2") || 
+                   categoryId.equals("cat3") || categoryId.equals("cat4") || 
+                   categoryId.equals("cat5") || categoryId.equals("cat6");
         }
     }
 }
