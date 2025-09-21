@@ -17,10 +17,15 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.example.gestorgastos.util.NavBarUtils;
+import com.example.gestorgastos.ui.dialogs.CategorySelectionBottomSheet;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+import android.app.DatePickerDialog;
 
 public class AmountInputBottomSheet extends BottomSheetDialogFragment {
     
@@ -29,6 +34,7 @@ public class AmountInputBottomSheet extends BottomSheetDialogFragment {
     private String currentAmount = "0";
     private OnExpenseSavedListener listener;
     private MainViewModel mainViewModel;
+    private long selectedDateMillis;
     
     public interface OnExpenseSavedListener {
         void onExpenseSaved(ExpenseEntity expense);
@@ -37,6 +43,8 @@ public class AmountInputBottomSheet extends BottomSheetDialogFragment {
     public static AmountInputBottomSheet newInstance(CategoryEntity category) {
         AmountInputBottomSheet bottomSheet = new AmountInputBottomSheet();
         bottomSheet.selectedCategory = category;
+        // Inicializar con la fecha actual
+        bottomSheet.selectedDateMillis = System.currentTimeMillis();
         return bottomSheet;
     }
     
@@ -125,6 +133,19 @@ public class AmountInputBottomSheet extends BottomSheetDialogFragment {
                 binding.tvSelectedCategoryIcon.setText("⭐");
             }
         }
+        
+        // Configurar click listener para cambiar categoría
+        binding.cardSelectedCategory.setOnClickListener(v -> {
+            showCategorySelection();
+        });
+        
+        // Configurar click listener para cambiar fecha
+        binding.cardSelectedDate.setOnClickListener(v -> {
+            showDatePicker();
+        });
+        
+        // Actualizar la fecha mostrada
+        updateDateDisplay();
         
         // Configurar botón de cerrar
         binding.btnCloseAmountInput.setOnClickListener(v -> dismiss());
@@ -227,7 +248,7 @@ public class AmountInputBottomSheet extends BottomSheetDialogFragment {
             }
             
             expense.monto = amount;
-            expense.fechaEpochMillis = Instant.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            expense.fechaEpochMillis = selectedDateMillis;
             expense.updatedAt = System.currentTimeMillis();
             expense.syncState = "PENDING";
             
@@ -247,6 +268,77 @@ public class AmountInputBottomSheet extends BottomSheetDialogFragment {
         } catch (Exception e) {
             Log.e("AmountInputBottomSheet", "Error al crear gasto", e);
         }
+    }
+    
+    private void showCategorySelection() {
+        CategorySelectionBottomSheet categoryBottomSheet = CategorySelectionBottomSheet.newInstance();
+        categoryBottomSheet.setOnCategorySelectedListener(new CategorySelectionBottomSheet.OnCategorySelectedListener() {
+            @Override
+            public void onCategorySelected(CategoryEntity category) {
+                // Actualizar la categoría seleccionada
+                selectedCategory = category;
+                
+                // Actualizar la UI
+                binding.tvSelectedCategoryName.setText(category.name);
+                if (!category.icono.isEmpty() && !category.icono.equals("default")) {
+                    binding.tvSelectedCategoryIcon.setText(category.icono);
+                } else {
+                    binding.tvSelectedCategoryIcon.setText("⭐");
+                }
+                
+                // Cerrar el BottomSheet de selección de categorías
+                categoryBottomSheet.dismiss();
+            }
+        });
+        categoryBottomSheet.show(getParentFragmentManager(), "CategorySelectionBottomSheet");
+    }
+    
+    private void updateDateDisplay() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(selectedDateMillis);
+        
+        Calendar today = Calendar.getInstance();
+        Calendar yesterday = Calendar.getInstance();
+        yesterday.add(Calendar.DAY_OF_YEAR, -1);
+        Calendar tomorrow = Calendar.getInstance();
+        tomorrow.add(Calendar.DAY_OF_YEAR, 1);
+        
+        String dateText;
+        if (calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) && 
+            calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
+            dateText = "Hoy";
+        } else if (calendar.get(Calendar.YEAR) == yesterday.get(Calendar.YEAR) && 
+                   calendar.get(Calendar.DAY_OF_YEAR) == yesterday.get(Calendar.DAY_OF_YEAR)) {
+            dateText = "Ayer";
+        } else if (calendar.get(Calendar.YEAR) == tomorrow.get(Calendar.YEAR) && 
+                   calendar.get(Calendar.DAY_OF_YEAR) == tomorrow.get(Calendar.DAY_OF_YEAR)) {
+            dateText = "Mañana";
+        } else {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            dateText = dateFormat.format(new Date(selectedDateMillis));
+        }
+        
+        binding.tvSelectedDateText.setText(dateText);
+    }
+    
+    private void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(selectedDateMillis);
+        
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+            requireContext(),
+            (view, year, month, dayOfMonth) -> {
+                Calendar selectedCalendar = Calendar.getInstance();
+                selectedCalendar.set(year, month, dayOfMonth);
+                selectedDateMillis = selectedCalendar.getTimeInMillis();
+                updateDateDisplay();
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        
+        datePickerDialog.show();
     }
     
     @Override

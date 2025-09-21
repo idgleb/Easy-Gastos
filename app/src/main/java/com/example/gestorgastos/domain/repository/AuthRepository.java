@@ -16,6 +16,8 @@ public interface AuthRepository {
     
     void signOut();
     
+    void resetPassword(String email, AuthCallback callback);
+    
     void deleteAccount(AuthCallback callback);
     
     interface AuthCallback {

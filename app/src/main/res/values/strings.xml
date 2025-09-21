@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GestorGastos</string>
+    <string name="app_name">Registro de Gastos Offline</string>
     <string name="greeting_user">Hola, %1$s</string>
     <string name="hint_email">Email</string>
     <string name="hint_password">Contraseña</string>

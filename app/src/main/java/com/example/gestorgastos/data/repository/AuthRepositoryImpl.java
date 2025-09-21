@@ -129,6 +129,29 @@ public class AuthRepositoryImpl implements AuthRepository {
     }
     
     @Override
+    public void resetPassword(String email, AuthCallback callback) {
+        Log.d(TAG, "Iniciando reset de contraseña para: " + email);
+        
+        if (email == null || email.trim().isEmpty()) {
+            callback.onError(new IllegalArgumentException("El email es requerido"));
+            return;
+        }
+        
+        authDataSource.resetPassword(email.trim())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Reset de contraseña exitoso para: " + email);
+                    // Crear un UserEntity temporal para el callback
+                    UserEntity tempUser = new UserEntity();
+                    tempUser.email = email;
+                    callback.onSuccess(tempUser);
+                })
+                .addOnFailureListener(error -> {
+                    Log.e(TAG, "Error en reset de contraseña: " + error.getMessage());
+                    callback.onError(error);
+                });
+    }
+    
+    @Override
     public void deleteAccount(AuthCallback callback) {
         FirebaseUser currentUser = authDataSource.getCurrentUser();
         if (currentUser == null) {

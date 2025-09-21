@@ -81,7 +81,7 @@
     <style name="AuthFormCard" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">24dp</item>
         <item name="cardElevation">8dp</item>
-        <item name="cardBackgroundColor">?attr/colorSurfaceBright</item>
+        <item name="cardBackgroundColor">@color/white</item>
         <item name="strokeWidth">0dp</item>
         <item name="android:layout_margin">6dp</item>
     </style>
@@ -99,7 +99,7 @@
         <item name="android:layout_width">32dp</item>
         <item name="android:layout_height">32dp</item>
         <item name="indicatorColor">?attr/colorPrimary</item>
-        <item name="trackColor">?attr/colorSurfaceVariant</item>
+        <item name="trackColor">@color/gris_light</item>
         <item name="trackThickness">3dp</item>
     </style>
     
@@ -162,6 +162,7 @@
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
     </style>
+    
     
     <!-- ===== ESTILOS PARA DIÁLOGOS ===== -->
     

@@ -27,6 +27,10 @@ public class FirebaseAuthDataSource {
         firebaseAuth.signOut();
     }
     
+    public Task<Void> resetPassword(String email) {
+        return firebaseAuth.sendPasswordResetEmail(email);
+    }
+    
     public Task<Void> deleteUser() {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {

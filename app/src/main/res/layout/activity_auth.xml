@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="@color/white">
 
     <!-- Fondo con gradiente sutil -->
     <View
@@ -139,6 +139,22 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Enlace de olvidé mi contraseña -->
+                    <TextView
+                        android:id="@+id/tv_forgot_password"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="¿Olvidaste tu contraseña?"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="8dp"
+                        android:visibility="visible" />
+
                     <!-- Botón principal -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_sign_in"
@@ -161,7 +177,7 @@
                         android:layout_marginTop="16dp"
                         android:visibility="gone"
                         app:indicatorColor="?attr/colorPrimary"
-                        app:trackColor="?attr/colorSurfaceVariant" />
+                        app:trackColor="@color/gris_light" />
 
                 </LinearLayout>
 

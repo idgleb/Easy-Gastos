@@ -19,7 +19,10 @@ import com.example.gestorgastos.databinding.ActivityAuthBinding;
 import com.example.gestorgastos.ui.main.MainActivity;
 import com.example.gestorgastos.util.NavBarUtils;
 import com.example.gestorgastos.util.AnimationConstants;
+import com.example.gestorgastos.ui.dialogs.AuthMessageDialog;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Objects;
 
 public class AuthActivity extends AppCompatActivity {
     private ActivityAuthBinding binding;
@@ -49,6 +52,9 @@ public class AuthActivity extends AppCompatActivity {
         setupViews();
         observeViewModel();
         
+        // Configurar estado inicial de la UI
+        updateUI();
+        
         // Animar entrada de la UI
         animateUIEntry();
     }
@@ -56,11 +62,11 @@ public class AuthActivity extends AppCompatActivity {
     private void setupViews() {
         // Botón de inicio de sesión
         binding.btnSignIn.setOnClickListener(v -> {
-            String email = binding.etEmail.getText().toString().trim();
-            String password = binding.etPassword.getText().toString().trim();
+            String email = Objects.requireNonNull(binding.etEmail.getText()).toString().trim();
+            String password = Objects.requireNonNull(binding.etPassword.getText()).toString().trim();
             
             if (isSignUpMode) {
-                String name = binding.etName.getText().toString().trim();
+                String name = Objects.requireNonNull(binding.etName.getText()).toString().trim();
                 if (validateInput(email, password, name)) {
                     authViewModel.signUp(email, password, name);
                 }
@@ -77,20 +83,36 @@ public class AuthActivity extends AppCompatActivity {
             animateModeChange();
         });
 
+        // Enlace "¿Olvidaste tu contraseña?"
+        binding.tvForgotPassword.setOnClickListener(v -> {
+            handleForgotPassword();
+        });
+
         // Configurar toggle de visibilidad de contraseña
         setupPasswordVisibilityToggle();
     }
 
     private void updateUI() {
+        // Limpiar errores antes de cambiar la UI
+        clearErrors();
+        
         if (isSignUpMode) {
             binding.tilName.setVisibility(View.VISIBLE);
+            binding.tvForgotPassword.setVisibility(View.GONE);
             binding.btnSignIn.setText("Crear Cuenta");
             binding.tvMode.setText("¿Ya tienes cuenta? Inicia sesión");
         } else {
             binding.tilName.setVisibility(View.GONE);
+            binding.tvForgotPassword.setVisibility(View.VISIBLE);
             binding.btnSignIn.setText("Iniciar Sesión");
             binding.tvMode.setText("¿No tienes cuenta? Regístrate");
         }
+    }
+
+    private void clearErrors() {
+        binding.tilEmail.setError(null);
+        binding.tilPassword.setError(null);
+        binding.tilName.setError(null);
     }
 
     private boolean validateInput(String email, String password) {
@@ -99,15 +121,18 @@ public class AuthActivity extends AppCompatActivity {
 
     private boolean validateInput(String email, String password, String name) {
         if (email.isEmpty()) {
-            binding.etEmail.setError("El email es requerido");
+            binding.tilEmail.setError("¡Ups! Necesitamos tu email para continuar 📧");
+            binding.etEmail.requestFocus();
             return false;
         }
         if (password.isEmpty()) {
-            binding.etPassword.setError("La contraseña es requerida");
+            binding.tilPassword.setError("¡Oye! Tu contraseña es importante 🔐");
+            binding.etPassword.requestFocus();
             return false;
         }
         if (isSignUpMode && name.isEmpty()) {
-            binding.etName.setError("El nombre es requerido");
+            binding.tilName.setError("¡Hola! ¿Cómo te gustaría que te llamemos? 👋");
+            binding.etName.requestFocus();
             return false;
         }
         return true;
@@ -130,7 +155,16 @@ public class AuthActivity extends AppCompatActivity {
 
         authViewModel.getErrorMessage().observe(this, errorMessage -> {
             if (errorMessage != null && !errorMessage.isEmpty()) {
-                Snackbar.make(binding.getRoot(), errorMessage, Snackbar.LENGTH_LONG).show();
+                // Determinar si es un mensaje de éxito o error
+                if (errorMessage.contains("enviado un enlace") || 
+                    errorMessage.contains("enlace mágico") || 
+                    errorMessage.contains("¡Perfecto!") ||
+                    errorMessage.contains("éxito") ||
+                    errorMessage.contains("✨")) {
+                    showSuccessDialog(errorMessage);
+                } else {
+                    showErrorDialog(errorMessage);
+                }
             }
         });
     }
@@ -312,7 +346,7 @@ public class AuthActivity extends AppCompatActivity {
                 binding.etPassword.setTransformationMethod(null);
                 binding.tilPassword.setEndIconDrawable(getDrawable(com.example.gestorgastos.R.drawable.ic_visibility_auth));
             }
-            binding.etPassword.setSelection(binding.etPassword.getText().length());
+            binding.etPassword.setSelection(Objects.requireNonNull(binding.etPassword.getText()).length());
         });
     }
 
@@ -374,5 +408,49 @@ public class AuthActivity extends AppCompatActivity {
                     .setDuration(AnimationConstants.AuthButton.DURATION)
                     .start();
         }
+    }
+
+    private void showMessageDialog(String title, String message, String type, String buttonText) {
+        AuthMessageDialog dialog = AuthMessageDialog.newInstance(title, message, type, buttonText);
+        dialog.setOnDialogActionListener(new AuthMessageDialog.OnDialogActionListener() {
+            @Override
+            public void onActionClicked() {
+                // Acción cuando se presiona el botón principal
+            }
+            
+            @Override
+            public void onDialogClosed() {
+                // Acción cuando se cierra el diálogo
+            }
+        });
+        dialog.show(getSupportFragmentManager(), AuthMessageDialog.TAG);
+    }
+    
+    private void showSuccessDialog(String message) {
+        showMessageDialog("¡Genial! 🎉", message, AuthMessageDialog.TYPE_SUCCESS, "¡Perfecto!");
+    }
+    
+    private void showErrorDialog(String message) {
+        showMessageDialog("¡Ups! 😅", message, AuthMessageDialog.TYPE_ERROR, "Intentar de nuevo");
+    }
+    
+    private void showInfoDialog(String title, String message) {
+        showMessageDialog(title, message, AuthMessageDialog.TYPE_INFO, "¡Entendido!");
+    }
+
+    private void handleForgotPassword() {
+        String email = Objects.requireNonNull(binding.etEmail.getText()).toString().trim();
+        
+        if (email.isEmpty()) {
+            binding.tilEmail.setError("¡Ay! Necesitamos tu email para ayudarte 🔑");
+            binding.etEmail.requestFocus();
+            return;
+        }
+        
+        // Limpiar error después de validar
+        binding.tilEmail.setError(null);
+        
+        // Llamar al método del ViewModel para resetear la contraseña
+        authViewModel.resetPassword(email);
     }
 }

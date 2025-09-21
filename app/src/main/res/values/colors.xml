@@ -41,10 +41,12 @@
     <!-- Colores Material 3 para BottomNavigationView -->
     <color name="bottom_nav_surface">#FFFFFF</color> <!-- Fondo del BottomNavigationView -->
     <color name="bottom_nav_surface_variant">#F5F5F5</color> <!-- Fondo alternativo -->
-    <color name="bottom_nav_on_surface">#1C1B1F</color> <!-- Texto e iconos no seleccionados -->
-    <color name="bottom_nav_on_surface_variant">#49454F</color> <!-- Texto e iconos secundarios -->
+    <color name="bottom_nav_on_surface">#851010</color> <!-- Texto e iconos no seleccionados -->
+    <color name="bottom_nav_on_surface_variant">#1D1D1D</color> <!-- Texto e iconos secundarios -->
     <color name="bottom_nav_primary">#009EE3</color> <!-- Color primario para selección -->
+    <color name="bottom_nav_primary_container">#E9E9E9</color> <!-- Fondo del botón seleccionado -->
     <color name="bottom_nav_on_primary">#FFFFFF</color> <!-- Texto e iconos sobre color primario -->
     <color name="bottom_nav_outline">#E7E0EC</color> <!-- Borde sutil -->
     <color name="bottom_nav_elevation">#000000</color> <!-- Sombra sutil -->
+    
 </resources>

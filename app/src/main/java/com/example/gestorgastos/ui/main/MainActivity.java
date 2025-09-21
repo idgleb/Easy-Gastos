@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -39,8 +40,6 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     // Variable para rastrear el fragmento actual
     private int currentFragment = FRAGMENT_EXPENSES;
     
-    // Caché compartida de categorías
-    private List<CategoryEntity> sharedCategoryCache = new ArrayList<>();
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +156,25 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
 
     }
     
+    private void setupBottomNavigationItemBackground() {
+        // Configurar el fondo del botón seleccionado usando programación
+        binding.bottomNavigation.setItemActiveIndicatorEnabled(true);
+        binding.bottomNavigation.setItemActiveIndicatorColor(
+            android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.bottom_nav_primary_container)
+            )
+        );
+        binding.bottomNavigation.setItemActiveIndicatorShapeAppearance(
+            com.google.android.material.shape.ShapeAppearanceModel.builder()
+                .setAllCornerSizes(16f)
+                .build()
+        );
+    }
+    
     private void setupBottomNavigationBehavior() {
+        // Personalizar el fondo del botón seleccionado
+        setupBottomNavigationItemBackground();
+        
         // Configurar comportamiento del BottomNavigationView
         binding.bottomNavigation.setOnItemReselectedListener(item -> {
             // Manejar cuando se selecciona el mismo item (scroll to top, refresh, etc.)
@@ -219,9 +236,7 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
                 // Actualizar el saludo en el AppBar personalizado usando recurso string
                 String saludo = getString(R.string.greeting_user, user.name);
                 binding.customAppbar.tvUserGreeting.setText(saludo);
-                
-                // Las categorías ahora se manejan reactivamente en cada fragmento
-                // No necesitamos caché manual en MainActivity
+
             }
         });
     }
@@ -267,19 +282,9 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         finish();
     }
     
-    // Métodos para manejar la caché compartida de categorías (DEPRECATED - ahora se usa LiveData reactivo)
     
-    /**
-     * Obtiene la caché compartida de categorías (DEPRECATED)
-     */
-    public List<CategoryEntity> getSharedCategoryCache() {
-        return sharedCategoryCache; // Mantenido para compatibilidad
-    }
-    
-    /**
-     * Notifica a los fragmentos que la caché de categorías se ha actualizado (DEPRECATED)
-     */
-    private void notifyFragmentsCategoryCacheUpdated() {
-        // Ya no es necesario, se usa LiveData reactivo automáticamente
+    // Método para obtener el UID del usuario actual
+    public String getCurrentUserUid() {
+        return viewModel.getCurrentUserUid();
     }
 }

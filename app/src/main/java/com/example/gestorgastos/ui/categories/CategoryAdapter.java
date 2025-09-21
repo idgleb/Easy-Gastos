@@ -105,4 +105,70 @@ public class CategoryAdapter extends ListAdapter<CategoryEntity, CategoryAdapter
             }
         }
     }
+    
+    /**
+     * Oculta un item específico para animación posterior
+     */
+    public void hideItem(View itemView) {
+        itemView.setAlpha(0f);
+        itemView.setScaleX(0.8f);
+        itemView.setScaleY(0.8f);
+        itemView.setTranslationY(30f);
+    }
+    
+    /**
+     * Revela un item oculto con animación
+     */
+    public void revealItem(View itemView) {
+        itemView.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
+    }
+    
+    /**
+     * Anima un item específico con efecto de highlight (para nuevas categorías)
+     */
+    public void animateNewItem(View itemView) {
+        // Efecto de highlight más pronunciado para el nuevo item
+        itemView.setScaleX(1.2f);
+        itemView.setScaleY(1.2f);
+        itemView.setAlpha(0.7f);
+        
+        // Primera animación: zoom in con bounce
+        itemView.animate()
+                .scaleX(1.05f)
+                .scaleY(1.05f)
+                .alpha(0.9f)
+                .setDuration(300)
+                .setInterpolator(new android.view.animation.BounceInterpolator())
+                .withEndAction(() -> {
+                    // Segunda animación: zoom out suave
+                    itemView.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .alpha(1f)
+                            .setDuration(200)
+                            .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                            .start();
+                })
+                .start();
+    }
+    
+    /**
+     * Busca la posición de una categoría por nombre e icono
+     */
+    public int findCategoryPositionByNameAndIcon(String categoryName, String categoryIcon) {
+        for (int i = 0; i < getItemCount(); i++) {
+            CategoryEntity category = getItem(i);
+            if (category.name.equals(categoryName) && category.icono.equals(categoryIcon)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }

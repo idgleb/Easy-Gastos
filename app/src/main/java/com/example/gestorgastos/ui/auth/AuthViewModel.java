@@ -45,12 +45,12 @@ public class AuthViewModel extends AndroidViewModel {
     
     public void signIn(String email, String password) {
         if (email == null || email.trim().isEmpty()) {
-            errorMessage.setValue("El email es requerido");
+            errorMessage.setValue("¡Ups! Necesitamos tu email para iniciar sesión 📧");
             return;
         }
         
         if (password == null || password.trim().isEmpty()) {
-            errorMessage.setValue("La contraseña es requerida");
+            errorMessage.setValue("¡Oye! Tu contraseña es importante para tu seguridad 🔐");
             return;
         }
         
@@ -69,29 +69,29 @@ public class AuthViewModel extends AndroidViewModel {
             public void onError(Exception error) {
                 Log.e("AuthViewModel", "SignIn error: " + error.getMessage());
                 isLoading.postValue(false);
-                errorMessage.postValue("Error al iniciar sesión: " + error.getMessage());
+                errorMessage.postValue("¡Oops! No pudimos iniciar sesión. Verifica tus datos y intenta de nuevo 😊");
             }
         });
     }
     
     public void signUp(String email, String password, String name) {
         if (email == null || email.trim().isEmpty()) {
-            errorMessage.setValue("El email es requerido");
+            errorMessage.setValue("¡Hola! Necesitamos tu email para crear tu cuenta 📧");
             return;
         }
         
         if (password == null || password.trim().isEmpty()) {
-            errorMessage.setValue("La contraseña es requerida");
+            errorMessage.setValue("¡Casi listo! Tu contraseña nos ayudará a proteger tu cuenta 🔐");
             return;
         }
         
         if (password.length() < 6) {
-            errorMessage.setValue("La contraseña debe tener al menos 6 caracteres");
+            errorMessage.setValue("¡Por seguridad! Tu contraseña debe tener al menos 6 caracteres 🛡️");
             return;
         }
         
         if (name == null || name.trim().isEmpty()) {
-            errorMessage.setValue("El nombre es requerido");
+            errorMessage.setValue("¡Genial! ¿Cómo te gustaría que te llamemos? 👋");
             return;
         }
         
@@ -109,7 +109,7 @@ public class AuthViewModel extends AndroidViewModel {
             @Override
             public void onError(Exception error) {
                 isLoading.postValue(false);
-                errorMessage.postValue("Error al crear cuenta: " + error.getMessage());
+                errorMessage.postValue("¡Ups! No pudimos crear tu cuenta. Intenta de nuevo en un momento 😊");
             }
         });
     }
@@ -131,13 +131,37 @@ public class AuthViewModel extends AndroidViewModel {
             @Override
             public void onError(Exception error) {
                 isLoading.postValue(false);
-                errorMessage.postValue("Error al eliminar cuenta: " + error.getMessage());
+                errorMessage.postValue("¡Ups! No pudimos eliminar tu cuenta. Intenta de nuevo más tarde 😊");
             }
         });
     }
     
     public void clearError() {
         errorMessage.setValue(null);
+    }
+    
+    public void resetPassword(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            errorMessage.setValue("¡Ay! Necesitamos tu email para ayudarte a recuperar tu contraseña 📧");
+            return;
+        }
+        
+        isLoading.setValue(true);
+        errorMessage.setValue(null);
+        
+        authRepository.resetPassword(email.trim(), new AuthRepository.AuthCallback() {
+            @Override
+            public void onSuccess(UserEntity user) {
+                isLoading.setValue(false);
+                errorMessage.setValue("¡Perfecto! Te enviamos un enlace mágico a tu email para recuperar tu contraseña ✨");
+            }
+            
+            @Override
+            public void onError(Exception error) {
+                isLoading.setValue(false);
+                errorMessage.postValue("¡Oops! No pudimos enviar el enlace. Verifica tu email y intenta de nuevo 😊");
+            }
+        });
     }
 }
 

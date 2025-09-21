@@ -12,12 +12,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gestorgastos.databinding.FragmentExpensesBinding;
 import com.example.gestorgastos.data.local.entity.ExpenseEntity;
 import com.example.gestorgastos.data.local.entity.CategoryEntity;
 import com.example.gestorgastos.ui.dialogs.CategorySelectionBottomSheet;
 import com.example.gestorgastos.ui.dialogs.AmountInputBottomSheet;
+import com.example.gestorgastos.ui.dialogs.EditExpenseDialog;
 import com.example.gestorgastos.ui.categories.CategoryViewModel;
 import com.example.gestorgastos.ui.main.MainViewModel;
 import com.example.gestorgastos.ui.main.MainActivity;
@@ -72,8 +74,7 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
             
             @Override
             public void onExpenseEdit(ExpenseEntity expense) {
-                // TODO: Implementar edición de gastos con BottomSheet
-                Toast.makeText(requireContext(), "Editar gasto: $" + expense.monto, Toast.LENGTH_SHORT).show();
+                showEditExpenseDialog(expense);
             }
             
             @Override
@@ -87,6 +88,9 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
         binding.fabAddExpense.setOnClickListener(v -> {
             showCategorySelectionBottomSheet();
         });
+        
+        // Iniciar animación de pulsación del icono
+        startFabPulseAnimation();
     }
     
     private void observeViewModel() {
@@ -132,10 +136,10 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
             }
         });
         
-        // Observar mensajes de éxito
+        // Observar mensajes de éxito (sin mostrar Toast)
         viewModel.getSuccessMessage().observe(getViewLifecycleOwner(), successMessage -> {
             if (successMessage != null) {
-                Toast.makeText(requireContext(), successMessage, Toast.LENGTH_SHORT).show();
+                // Solo limpiar el mensaje, no mostrar Toast
                 viewModel.clearMessages();
             }
         });
@@ -165,6 +169,74 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
         Log.d("ExpensesFragment", "onExpenseSaved - ID: " + expense.idLocal + ", Monto: " + expense.monto);
         Log.d("ExpensesFragment", "Insertando nuevo gasto");
         viewModel.insertExpense(expense);
+        
+        // Scroll automático hacia el nuevo item después de un breve delay
+        binding.recyclerViewExpenses.postDelayed(() -> {
+            if (binding.recyclerViewExpenses.getLayoutManager() != null && adapter != null) {
+                // Buscar la posición del nuevo gasto en la lista
+                int newItemPosition = findExpensePosition(expense);
+                if (newItemPosition >= 0) {
+                    // Ocultar el nuevo item antes del scroll
+                    RecyclerView.ViewHolder viewHolder = binding.recyclerViewExpenses.findViewHolderForAdapterPosition(newItemPosition);
+                    if (viewHolder != null) {
+                        adapter.hideItem(viewHolder.itemView);
+                        Log.d("ExpensesFragment", "Hiding new expense item before scroll");
+                    }
+                    
+                    // Scroll al nuevo item
+                    binding.recyclerViewExpenses.smoothScrollToPosition(newItemPosition);
+                    Log.d("ExpensesFragment", "Scrolling to new expense at position: " + newItemPosition);
+                    
+                    // Revelar el nuevo item después del scroll
+                    binding.recyclerViewExpenses.postDelayed(() -> {
+                        RecyclerView.ViewHolder viewHolderAfterScroll = binding.recyclerViewExpenses.findViewHolderForAdapterPosition(newItemPosition);
+                        if (viewHolderAfterScroll != null) {
+                            // Pequeño delay adicional para asegurar que el scroll terminó
+                            viewHolderAfterScroll.itemView.postDelayed(() -> {
+                                adapter.revealItem(viewHolderAfterScroll.itemView);
+                                Log.d("ExpensesFragment", "Revealing new expense item after scroll");
+                                
+                                // Después de revelar, aplicar el efecto highlight
+                                viewHolderAfterScroll.itemView.postDelayed(() -> {
+                                    adapter.animateNewItem(viewHolderAfterScroll.itemView);
+                                    Log.d("ExpensesFragment", "Applying highlight animation to new expense");
+                                }, 200);
+                            }, 100);
+                        }
+                    }, 600); // Delay para que termine el scroll
+                } else {
+                    // Fallback: scroll to top if position not found
+                    binding.recyclerViewExpenses.smoothScrollToPosition(0);
+                    Log.d("ExpensesFragment", "New expense position not found, scrolling to top");
+                }
+            }
+        }, 300); // 300ms delay para permitir que se actualice la lista
+    }
+    
+    /**
+     * Busca la posición de un gasto específico en la lista actual
+     */
+    private int findExpensePosition(ExpenseEntity targetExpense) {
+        if (pendingExpenses == null || pendingExpenses.isEmpty()) {
+            return -1;
+        }
+        
+        for (int i = 0; i < pendingExpenses.size(); i++) {
+            ExpenseEntity expense = pendingExpenses.get(i);
+            // Comparar por ID local si está disponible, o por monto y fecha como fallback
+            if (expense.idLocal == targetExpense.idLocal && expense.idLocal > 0) {
+                return i;
+            } else if (expense.idLocal == 0 && targetExpense.idLocal == 0) {
+                // Para gastos nuevos sin ID, comparar por monto y fecha
+                if (expense.monto == targetExpense.monto && 
+                    expense.fechaEpochMillis == targetExpense.fechaEpochMillis &&
+                    expense.categoryRemoteId.equals(targetExpense.categoryRemoteId)) {
+                    return i;
+                }
+            }
+        }
+        
+        return -1; // No encontrado
     }
     
     /**
@@ -173,7 +245,16 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
     private void tryShowExpenses() {
         if (categoriesLoaded && expensesLoaded && adapter != null) {
             Log.d("ExpensesFragment", "Mostrando gastos - Categorías: " + categories.size() + ", Gastos: " + pendingExpenses.size());
+            
+            // Desactivar animaciones para la carga inicial
+            adapter.setAnimateItems(false);
             adapter.submitList(pendingExpenses);
+            
+            // Reactivar animaciones después de un breve delay
+            binding.recyclerViewExpenses.postDelayed(() -> {
+                adapter.setAnimateItems(true);
+                adapter.resetAnimationState();
+            }, 100);
         } else {
             Log.d("ExpensesFragment", "Esperando datos - Categorías cargadas: " + categoriesLoaded + ", Gastos cargados: " + expensesLoaded);
         }
@@ -186,6 +267,44 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
     public void onCategoryCacheUpdated(List<CategoryEntity> categories) {
         // Ya no es necesario, se usa LiveData reactivo automáticamente
         Log.d("ExpensesFragment", "onCategoryCacheUpdated llamado pero usando LiveData reactivo");
+    }
+    
+    private void startFabPulseAnimation() {
+        if (binding != null && binding.ivFabIcon != null) {
+            // Crear animación de escala con mayor amplitud
+            android.view.animation.ScaleAnimation scaleAnimation = new android.view.animation.ScaleAnimation(
+                1.0f, 1.4f, // fromX, toX (40% más grande)
+                1.0f, 1.4f, // fromY, toY (40% más grande)
+                android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f, // pivotX
+                android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f  // pivotY
+            );
+            
+            scaleAnimation.setDuration(1000); // 1 segundo
+            scaleAnimation.setRepeatCount(android.view.animation.Animation.INFINITE);
+            scaleAnimation.setRepeatMode(android.view.animation.Animation.REVERSE);
+            scaleAnimation.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+            
+            // Iniciar animación
+            binding.ivFabIcon.startAnimation(scaleAnimation);
+        }
+    }
+    
+    private void showEditExpenseDialog(ExpenseEntity expense) {
+        EditExpenseDialog dialog = EditExpenseDialog.newInstance(expense, categories);
+        dialog.setOnExpenseEditedListener(new EditExpenseDialog.OnExpenseEditedListener() {
+            @Override
+            public void onExpenseEdited(ExpenseEntity editedExpense) {
+                // Actualizar el gasto en la base de datos
+                viewModel.updateExpense(editedExpense);
+                Toast.makeText(requireContext(), "Gasto actualizado correctamente", Toast.LENGTH_SHORT).show();
+            }
+            
+            @Override
+            public void onDialogCancelled() {
+                // No hacer nada, solo cerrar el diálogo
+            }
+        });
+        dialog.show(getParentFragmentManager(), EditExpenseDialog.TAG);
     }
     
     @Override

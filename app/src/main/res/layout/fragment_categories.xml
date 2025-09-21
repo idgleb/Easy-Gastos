@@ -40,15 +40,28 @@
         android:textSize="16sp"
         android:visibility="gone" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <!-- Floating Action Button -->
+    <FrameLayout
         android:id="@+id/fab_add_category"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="bottom|center_horizontal"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="@color/appbar_blue"
-        app:tint="@color/white"/>
+        android:background="@drawable/fab_custom_background"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackgroundBorderless">
+        
+        <ImageView
+            android:id="@+id/ivFabIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_add_fab"
+            android:scaleType="centerInside"
+            android:contentDescription="Agregar categoría" />
+            
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

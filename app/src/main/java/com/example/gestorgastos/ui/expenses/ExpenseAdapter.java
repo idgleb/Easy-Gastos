@@ -3,6 +3,8 @@ package com.example.gestorgastos.ui.expenses;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -23,6 +25,8 @@ public class ExpenseAdapter extends ListAdapter<ExpenseEntity, ExpenseAdapter.Ex
     
     private OnExpenseClickListener listener;
     private Map<String, CategoryEntity> categoryCache = new HashMap<>();
+    private int lastAnimatedPosition = -1;
+    private boolean animateItems = true;
     
     public interface OnExpenseClickListener {
         void onExpenseClick(ExpenseEntity expense);
@@ -77,6 +81,100 @@ public class ExpenseAdapter extends ListAdapter<ExpenseEntity, ExpenseAdapter.Ex
     public void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position) {
         ExpenseEntity expense = getItem(position);
         holder.bind(expense);
+        
+        // Aplicar animación de entrada si es necesario
+        if (animateItems && position > lastAnimatedPosition) {
+            animateItem(holder.itemView, position);
+            lastAnimatedPosition = position;
+        }
+    }
+    
+    /**
+     * Anima un item específico con efecto de entrada
+     */
+    private void animateItem(View itemView, int position) {
+        // Resetear propiedades de animación
+        itemView.setAlpha(0f);
+        itemView.setTranslationY(50f);
+        itemView.setScaleX(0.8f);
+        itemView.setScaleY(0.8f);
+        
+        // Animar entrada
+        itemView.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(300)
+                .setStartDelay(position * 50) // Delay escalonado
+                .start();
+    }
+    
+    /**
+     * Anima un item específico con efecto de highlight (para nuevos gastos)
+     */
+    public void animateNewItem(View itemView) {
+        // Efecto de highlight más pronunciado para el nuevo item
+        itemView.setScaleX(1.2f);
+        itemView.setScaleY(1.2f);
+        itemView.setAlpha(0.7f);
+        
+        // Primera animación: zoom in con bounce
+        itemView.animate()
+                .scaleX(1.05f)
+                .scaleY(1.05f)
+                .alpha(0.9f)
+                .setDuration(300)
+                .setInterpolator(new android.view.animation.BounceInterpolator())
+                .withEndAction(() -> {
+                    // Segunda animación: zoom out suave
+                    itemView.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .alpha(1f)
+                            .setDuration(200)
+                            .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                            .start();
+                })
+                .start();
+    }
+    
+    /**
+     * Desactiva las animaciones para actualizaciones masivas
+     */
+    public void setAnimateItems(boolean animate) {
+        this.animateItems = animate;
+    }
+    
+    /**
+     * Resetea el contador de animaciones
+     */
+    public void resetAnimationState() {
+        this.lastAnimatedPosition = -1;
+    }
+    
+    /**
+     * Oculta un item específico para animación posterior
+     */
+    public void hideItem(View itemView) {
+        itemView.setAlpha(0f);
+        itemView.setScaleX(0.8f);
+        itemView.setScaleY(0.8f);
+        itemView.setTranslationY(30f);
+    }
+    
+    /**
+     * Revela un item oculto con animación
+     */
+    public void revealItem(View itemView) {
+        itemView.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
     }
     
     class ExpenseViewHolder extends RecyclerView.ViewHolder {
