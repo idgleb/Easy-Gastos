@@ -86,8 +86,9 @@ public class DashboardFragment extends Fragment {
         // Observar texto del mes/año
         viewModel.getMonthYearText().observe(getViewLifecycleOwner(), monthYear -> {
             if (monthYear != null) {
-                binding.tvMonthYear.setText(monthYear);
-                updateTotalMonthTitle(monthYear);
+                String capped = capitalizeFirst(monthYear);
+                binding.tvMonthYear.setText(capped);
+                updateTotalMonthTitle(capped);
             }
         });
         
@@ -161,6 +162,14 @@ public class DashboardFragment extends Fragment {
             Log.d(TAG, "Badge del gráfico actualizado: " + monthYearText);
             Log.d(TAG, "Badge de categorías actualizado: " + monthYearText);
         }
+    }
+
+    private String capitalizeFirst(String text) {
+        if (text == null || text.isEmpty()) return text;
+        Locale locale = new Locale("es", "ES");
+        String first = text.substring(0, 1).toUpperCase(locale);
+        String rest = text.substring(1);
+        return first + rest;
     }
     
     private void updateCategorySummaries(List<CategorySummary> summaries) {

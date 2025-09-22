@@ -49,4 +49,14 @@
     <color name="bottom_nav_outline">#E7E0EC</color> <!-- Borde sutil -->
     <color name="bottom_nav_elevation">#000000</color> <!-- Sombra sutil -->
     
+    <!-- Colores para el fondo animado de autenticación -->
+    <color name="gradient_center">#A2AEFF</color> <!-- Blanco en el centro -->
+    <color name="gradient_mid">#233ED9</color> <!-- Azul brillante -->
+    <color name="gradient_edge">#7100D7</color> <!-- Púrpura brillante -->
+    <color name="gradient_outer">#000000</color> <!-- Negro en el borde -->
+    
+    <!-- Botón estilo glass de diálogos -->
+    <color name="dialog_button_glass_bg">#80000000</color>
+    <color name="dialog_button_glass_stroke">#B3FFFFFF</color>
+    
 </resources>

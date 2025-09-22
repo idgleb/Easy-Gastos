@@ -4,11 +4,13 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -23,9 +25,8 @@ public class AuthMessageDialog extends DialogFragment {
     
     // Tipos de mensaje
     public static final String TYPE_SUCCESS = "success";
-    public static final String TYPE_ERROR = "error";
     public static final String TYPE_INFO = "info";
-    public static final String TYPE_WARNING = "warning";
+    
     
     private static final String ARG_TITLE = "title";
     private static final String ARG_MESSAGE = "message";
@@ -59,7 +60,8 @@ public class AuthMessageDialog extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.Material3DialogTheme);
+        // Usar tema sin marco para permitir fondo transparente y tarjeta personalizada
+        setStyle(DialogFragment.STYLE_NO_FRAME, R.style.Material3DialogTheme);
     }
     
     @NonNull
@@ -71,6 +73,13 @@ public class AuthMessageDialog extends DialogFragment {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+            // Oscurecer el fondo detrás del diálogo para efecto glass
+            dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            dialog.getWindow().setDimAmount(0.3f);
+            // Aplicar blur del contenido detrás en Android 12+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                dialog.getWindow().setBackgroundBlurRadius(60);
+            }
         }
         
         dialog.setCancelable(true);
@@ -143,31 +152,15 @@ public class AuthMessageDialog extends DialogFragment {
         Context context = getContext();
         if (context == null) return;
         
-        switch (type) {
-            case TYPE_SUCCESS:
-                ivMessageIcon.setText("✅");
-                ivMessageIcon.setTextColor(context.getColor(R.color.green));
-                btnAction.setBackgroundColor(context.getColor(R.color.green));
-                break;
-                
-            case TYPE_ERROR:
-                ivMessageIcon.setText("❌");
-                ivMessageIcon.setTextColor(context.getColor(R.color.red));
-                btnAction.setBackgroundColor(context.getColor(R.color.red));
-                break;
-                
-            case TYPE_WARNING:
-                ivMessageIcon.setText("⚠️");
-                ivMessageIcon.setTextColor(context.getColor(R.color.orange));
-                btnAction.setBackgroundColor(context.getColor(R.color.orange));
-                break;
-                
-            case TYPE_INFO:
-            default:
-                ivMessageIcon.setText("ℹ️");
-                ivMessageIcon.setTextColor(context.getColor(R.color.blue));
-                btnAction.setBackgroundColor(context.getColor(R.color.blue));
-                break;
+        if (TYPE_SUCCESS.equals(type)) {
+            ivMessageIcon.setText("✅");
+            ivMessageIcon.setTextColor(context.getColor(R.color.white));
+            btnAction.setBackgroundColor(context.getColor(R.color.dialog_button_glass_bg));
+        } else {
+            // TYPE_INFO por defecto
+            ivMessageIcon.setText("ℹ️");
+            ivMessageIcon.setTextColor(context.getColor(R.color.white));
+            btnAction.setBackgroundColor(context.getColor(R.color.dialog_button_glass_bg));
         }
     }
     

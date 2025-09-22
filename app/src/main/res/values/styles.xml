@@ -23,13 +23,13 @@
     <!-- Subtítulo descriptivo -->
     <style name="AuthSubtitle">
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColor">@color/blue_light</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:lineSpacingExtra">4dp</item>
         <item name="android:gravity">center</item>
     </style>
     
-    <!-- Botón principal de autenticación -->
+    <!-- Botón principal de autenticación con estilo glass mejorado -->
     <style name="AuthPrimaryButton" parent="Widget.Material3.Button">
         <item name="android:layout_height">56dp</item>
         <item name="android:textSize">16sp</item>
@@ -37,7 +37,12 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:letterSpacing">0.01</item>
         <item name="cornerRadius">16dp</item>
-        <item name="android:elevation">4dp</item>
+        <item name="backgroundTint">#80000000</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="iconTint">@color/white</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">#B3FFFFFF</item>
+        <item name="android:elevation">2dp</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
     
@@ -51,46 +56,48 @@
         <item name="strokeColor">?attr/colorOutline</item>
     </style>
     
-    <!-- TextInputLayout personalizado -->
+    <!-- TextInputLayout personalizado con estilo glass uniforme -->
     <style name="AuthTextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="android:layout_marginBottom">16dp</item>
         <item name="boxCornerRadiusTopStart">16dp</item>
         <item name="boxCornerRadiusTopEnd">16dp</item>
         <item name="boxCornerRadiusBottomStart">16dp</item>
         <item name="boxCornerRadiusBottomEnd">16dp</item>
-        <item name="boxStrokeWidth">2dp</item>
-        <item name="boxStrokeColor">?attr/colorOutline</item>
-        <item name="hintTextColor">?attr/colorOnSurfaceVariant</item>
-        <item name="startIconTint">?attr/colorPrimary</item>
-        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeColor">#B3FFFFFF</item>
+        <item name="hintTextColor">@color/white</item>
+        <item name="android:textColorHint">@color/white</item>
+        <item name="startIconTint">@color/white</item>
+        <item name="endIconTint">@color/white</item>
     </style>
     
-    <!-- TextInputEditText personalizado -->
+    <!-- TextInputEditText personalizado con estilo glass uniforme -->
     <style name="AuthTextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
         <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textColor">?attr/colorOnSurface</item>
-        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorHint">@color/white</item>
         <item name="android:paddingStart">16dp</item>
         <item name="android:paddingEnd">16dp</item>
         <item name="android:paddingTop">16dp</item>
         <item name="android:paddingBottom">16dp</item>
     </style>
     
-    <!-- Card para el formulario -->
+    <!-- Card para el formulario con estilo glass morphism mejorado -->
     <style name="AuthFormCard" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">24dp</item>
-        <item name="cardElevation">8dp</item>
-        <item name="cardBackgroundColor">@color/white</item>
-        <item name="strokeWidth">0dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardBackgroundColor">#80000000</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">#B3FFFFFF</item>
         <item name="android:layout_margin">6dp</item>
     </style>
     
     <!-- Logo/Icono de la app -->
     <style name="AuthAppLogo">
-        <item name="android:layout_width">100dp</item>
-        <item name="android:layout_height">100dp</item>
-        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:layout_width">130dp</item>
+        <item name="android:layout_height">130dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
         <item name="android:scaleType">centerInside</item>
     </style>
     
@@ -105,7 +112,7 @@
     
     <!-- Texto de cambio de modo -->
     <style name="AuthModeText">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:padding">12dp</item>

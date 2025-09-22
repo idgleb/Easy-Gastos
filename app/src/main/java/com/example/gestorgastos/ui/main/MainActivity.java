@@ -4,14 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -46,14 +50,30 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-        // Configurar NavigationBar para MainActivity
+        // Asegurar que el sistema dibuje la status bar con el color indicado
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+        // Opción A: sin padding por insets en el root para que la status bar muestre su color
+        // Aplicar solo el inset top al AppBar para que no se solape con la status bar
+        View appbar = findViewById(R.id.appbar);
+        if (appbar != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(appbar, (v, insets) -> {
+                Insets status = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+                v.setPadding(v.getPaddingLeft(), status.top, v.getPaddingRight(), v.getPaddingBottom());
+                return insets;
+            });
+        }
+        // Configurar barras del sistema para MainActivity
         if (getWindow() != null) {
+            // Asegurar que podamos colorear la status bar
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            // Status bar con fondo fondo_principal
+            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.fondo_principal));
+            // Navigation bar en negro
             getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+            // Asegurar iconos claros sobre status bar oscura
+            WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+            controller.setAppearanceLightStatusBars(false);
         }
         // Forzar modo claro
         androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);

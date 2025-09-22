@@ -9,7 +9,7 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
+        android:layout_margin="4dp"
         android:layout_marginBottom="8dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
@@ -45,7 +45,7 @@
 
                 <TextView
                     android:text="Resumen de Gastos"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
                 <TextView
                     android:id="@+id/tv_month_year"
                     android:text="Enero 2025"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface"
                     android:layout_width="wrap_content"
@@ -88,7 +88,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="12dp">
 
         <!-- Estadísticas principales con diseño mejorado -->
         <LinearLayout
@@ -147,7 +148,7 @@
                         <TextView
                             android:id="@+id/tv_total_month"
                             android:text="$0.00"
-                            android:textSize="32sp"
+                            android:textSize="28sp"
                             android:textStyle="bold"
                             android:textColor="?attr/colorOnSurface"
                             android:layout_width="wrap_content"
@@ -190,14 +191,14 @@
 
                     <TextView
                         android:text="📊"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp" />
 
                     <TextView
                         android:text="Gastos por Categoría"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
                         android:layout_width="0dp"
@@ -256,14 +257,14 @@
 
                     <TextView
                         android:text="📋"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp" />
 
                     <TextView
                         android:text="Detalle por Categoría"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
                         android:layout_width="0dp"

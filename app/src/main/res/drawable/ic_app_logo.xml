@@ -1,23 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="120dp"
-    android:height="120dp"
-    android:viewportWidth="120"
-    android:viewportHeight="120">
-    
-    <!-- Fondo circular -->
+    android:width="1000dp"
+    android:height="1000dp"
+    android:viewportWidth="1000"
+    android:viewportHeight="1000">
     <path
-        android:fillColor="?attr/colorPrimary"
-        android:pathData="M60,60m-60,0a60,60 0,1 1,120 0a60,60 0,1 1,-120 0" />
-    
-    <!-- Icono de dinero/gasto -->
+        android:pathData="M178.7,769.8C228,769.8 380.5,542.2 489.8,542.2C643.9,542.2 727.5,769.8 807.6,769.8C903,769.8 807.6,510.4 807.6,510.4C807.6,510.4 787.5,651.2 640.6,522.7C457.9,362.9 325,176.1 288.7,176.1C220.3,176.1 92.9,769.8 178.7,769.8Z"
+        android:fillColor="#1f53ff"/>
     <path
-        android:fillColor="@android:color/white"
-        android:pathData="M60,25c-19.33,0 -35,15.67 -35,35s15.67,35 35,35s35,-15.67 35,-35S79.33,25 60,25zM60,85c-13.81,0 -25,-11.19 -25,-25s11.19,-25 25,-25s25,11.19 25,25S73.81,85 60,85z" />
-    
-    <!-- Símbolo de peso/dólar -->
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M60,35v5c8.28,0 15,6.72 15,15s-6.72,15 -15,15v10h-5v-10c-8.28,0 -15,-6.72 -15,-15h5c0,5.52 4.48,10 10,10s10,-4.48 10,-10s-4.48,-10 -10,-10v-5H60z" />
-    
+        android:pathData="M655.4,505.7C701.3,545.9 729.2,554.3 744.6,554.3C778.4,554.3 786.5,522.4 787.5,500.9C792,403.1 726.4,257.4 676.9,257.4C632.6,257.4 566.7,338.2 531,386.9C569.2,426 610.6,466.6 655.4,505.7Z"
+        android:fillColor="#00b3ff"/>
 </vector>

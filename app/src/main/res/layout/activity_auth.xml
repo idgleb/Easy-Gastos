@@ -3,15 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@android:color/transparent"
+    android:fitsSystemWindows="false">
 
-    <!-- Fondo con gradiente sutil -->
-    <View
+    <!-- Fondo con gradiente animado estilo IA -->
+    <com.example.gestorgastos.ui.auth.AnimatedGradientBackground
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/auth_background_gradient" />
+        android:layout_height="match_parent" />
+
 
     <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
@@ -31,8 +33,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:layout_marginTop="28dp"
-                android:layout_marginBottom="8dp">
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="18dp">
 
                 <ImageView
                     android:id="@+id/iv_app_logo"
@@ -45,8 +47,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/AuthAppTitle"
+                    android:textAlignment="center"
                     android:text="@string/app_name"
-                    android:padding="10dp"
+                    android:paddingBottom="15dp"
                     android:layout_marginBottom="8dp" />
 
                 <TextView
@@ -62,15 +65,20 @@
             <!-- Card del formulario -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_auth_form"
-                style="@style/AuthFormCard"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#80000000"
+                app:strokeColor="#B3FFFFFF"
+                app:strokeWidth="1dp"
+                android:layout_marginHorizontal="8dp"
+                app:cardCornerRadius="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="32dp">
+                    android:paddingHorizontal="18dp"
+                    android:paddingVertical="22dp">
 
                     <!-- Campo de email -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -160,12 +168,14 @@
                         android:id="@+id/btn_sign_in"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        style="@style/AuthPrimaryButton"
+                        android:background="@drawable/auth_button_background"
+                        android:textColor="@android:color/white"
                         android:text="Iniciar Sesión"
                         android:layout_marginTop="16dp"
                         app:icon="@drawable/ic_chevron_right"
                         app:iconGravity="textEnd"
-                        app:iconPadding="8dp" />
+                        app:iconPadding="8dp"
+                        app:backgroundTint="@null" />
 
                     <!-- ProgressBar -->
                     <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -190,7 +200,7 @@
                 android:layout_height="wrap_content"
                 style="@style/AuthModeText"
                 android:text="¿No tienes cuenta? Regístrate"
-                android:layout_marginTop="24dp" />
+                android:layout_marginTop="14dp" />
 
             <!-- Información adicional -->
             <TextView
@@ -198,8 +208,8 @@
                 android:layout_height="wrap_content"
                 android:text="Al continuar, aceptas nuestros términos de servicio"
                 android:textSize="12sp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginTop="32dp"
+                android:textColor="@color/gris_light"
+                android:layout_marginTop="22dp"
                 android:gravity="center"
                 android:alpha="0.7" />
 
