@@ -30,7 +30,7 @@
             android:layout_height="48dp"
             android:background="@drawable/dialog_icon_background"
             android:gravity="center"
-            android:text="ℹ️"
+            android:text="@string/emoji_info"
             android:textSize="24sp"
             android:layout_marginEnd="16dp" />
 
@@ -39,7 +39,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Mensaje"
+            android:text="@string/dialog_message_title"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/white" />
@@ -62,7 +62,7 @@
         android:id="@+id/tvMessageText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Mensaje de ejemplo"
+        android:text="@string/dialog_message_placeholder"
         android:textSize="16sp"
         android:textColor="#E6FFFFFF"
         android:lineSpacingExtra="4dp"
@@ -74,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
-        android:text="Bien"
+        android:text="@string/action_ok"
         android:textColor="@android:color/white"
         android:insetTop="0dp"
         android:insetBottom="0dp"

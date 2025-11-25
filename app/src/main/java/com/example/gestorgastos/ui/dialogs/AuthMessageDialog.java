@@ -78,7 +78,12 @@ public class AuthMessageDialog extends DialogFragment {
             dialog.getWindow().setDimAmount(0.3f);
             // Aplicar blur del contenido detrás en Android 12+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                try {
                 dialog.getWindow().setBackgroundBlurRadius(60);
+                } catch (Exception e) {
+                    // Ignorar si falla el blur - no es crítico para la funcionalidad
+                    android.util.Log.w(TAG, "No se pudo aplicar blur de fondo", e);
+                }
             }
         }
         

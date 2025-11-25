@@ -3,6 +3,7 @@ package com.example.gestorgastos.data.remote;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.AuthCredential;
 
 public class FirebaseAuthDataSource {
     private final FirebaseAuth firebaseAuth;
@@ -38,5 +39,9 @@ public class FirebaseAuthDataSource {
         }
         // Retornar null si no hay usuario
         return null;
+    }
+    
+    public Task<com.google.firebase.auth.AuthResult> signInWithCredential(AuthCredential credential) {
+        return firebaseAuth.signInWithCredential(credential);
     }
 }

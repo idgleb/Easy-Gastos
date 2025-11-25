@@ -5,6 +5,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -28,12 +29,24 @@ public class FirestoreDataSource {
         return firestore.collection("users").document(uid).get();
     }
     
+    /**
+     * Obtiene un listener de tiempo real para el documento del usuario.
+     * Detecta cambios automáticamente cuando el webhook actualiza el plan.
+     */
+    public ListenerRegistration getUserSnapshotListener(String uid, com.google.firebase.firestore.EventListener<com.google.firebase.firestore.DocumentSnapshot> listener) {
+        return firestore.collection("users").document(uid).addSnapshotListener(listener);
+    }
+    
     public Task<Void> updateUser(String uid, Map<String, Object> updates) {
         return firestore.collection("users").document(uid).update(updates);
     }
     
     public Task<Void> deleteUser(String uid) {
         return firestore.collection("users").document(uid).delete();
+    }
+    
+    public Task<QuerySnapshot> getAllUsers() {
+        return firestore.collection("users").get();
     }
     
     // Categories

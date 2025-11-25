@@ -26,6 +26,9 @@ public class UserEntity {
     @NonNull
     public String planId;
     
+    @Nullable
+    public Long planExpiresAt; // Timestamp de expiración del plan (null = sin expiración)
+    
     @NonNull
     public String zonaHoraria;
     

@@ -17,6 +17,9 @@ public interface CategoryDao {
     @Query("SELECT * FROM categories WHERE userUid = :userUid ORDER BY isActive DESC, name ASC")
     LiveData<List<CategoryEntity>> getAllCategoriesByUser(String userUid);
     
+    @Query("SELECT * FROM categories WHERE userUid = :userUid ORDER BY isActive DESC, name ASC")
+    List<CategoryEntity> getAllCategoriesByUserSync(String userUid);
+    
     @Query("SELECT * FROM categories WHERE userUid = :userUid AND isActive = 1 AND deletedAt IS NULL ORDER BY name ASC")
     LiveData<List<CategoryEntity>> getActiveCategoriesByUser(String userUid);
     

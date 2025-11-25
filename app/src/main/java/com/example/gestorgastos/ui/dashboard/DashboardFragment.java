@@ -6,13 +6,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.gestorgastos.R;
 import com.example.gestorgastos.databinding.FragmentDashboardBinding;
+import com.example.gestorgastos.data.local.entity.CategoryEntity;
+import com.example.gestorgastos.data.local.entity.ExpenseEntity;
 import com.example.gestorgastos.ui.main.MainActivity;
+import com.example.gestorgastos.ui.main.MainViewModel;
+import com.example.gestorgastos.ui.expenses.ExpenseViewModel;
+import com.example.gestorgastos.ui.dialogs.CategorySelectionBottomSheet;
+import com.example.gestorgastos.ui.dialogs.AmountInputBottomSheet;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -28,7 +35,10 @@ public class DashboardFragment extends Fragment {
     
     private FragmentDashboardBinding binding;
     private DashboardViewModel viewModel;
+    private ExpenseViewModel expenseViewModel;
+    private MainViewModel mainViewModel;
     private NumberFormat currencyFormat;
+    private String currentUserUid;
     
     @Nullable
     @Override
@@ -42,11 +52,17 @@ public class DashboardFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         
         viewModel = new ViewModelProvider(this).get(DashboardViewModel.class);
+        expenseViewModel = new ViewModelProvider(
+                this,
+                new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication())
+        ).get(ExpenseViewModel.class);
+        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         currencyFormat = NumberFormat.getCurrencyInstance(new Locale("es", "MX"));
         
         setupViews();
         setupPieChart();
         observeViewModel();
+        observeExpenseCreationState();
         loadUserData();
     }
     
@@ -60,6 +76,10 @@ public class DashboardFragment extends Fragment {
             Log.d(TAG, "Navegando al mes siguiente");
             viewModel.nextMonth();
         });
+
+        if (binding.btnAddExpense != null) {
+            binding.btnAddExpense.setOnClickListener(v -> showCategorySelectionBottomSheet());
+        }
     }
     
     
@@ -135,6 +155,31 @@ public class DashboardFragment extends Fragment {
             }
         });
     }
+
+    private void observeExpenseCreationState() {
+        if (expenseViewModel == null) {
+            return;
+        }
+
+        expenseViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            Log.d(TAG, "Estado de inserción de gasto: " + isLoading);
+        });
+
+        expenseViewModel.getSuccessMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                expenseViewModel.clearMessages();
+                refreshDashboardData();
+            }
+        });
+
+        expenseViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                expenseViewModel.clearMessages();
+            }
+        });
+    }
     
     private void loadUserData() {
         // Obtener el UID del usuario desde MainActivity
@@ -144,11 +189,20 @@ public class DashboardFragment extends Fragment {
             
             if (userUid != null && !userUid.isEmpty()) {
                 Log.d(TAG, "Cargando datos del dashboard para usuario: " + userUid);
+                currentUserUid = userUid;
                 viewModel.loadDashboardData(userUid);
             } else {
                 Log.w(TAG, "No se pudo obtener el UID del usuario");
                 viewModel.clearMessages();
             }
+        }
+    }
+
+    private void refreshDashboardData() {
+        if (currentUserUid != null && !currentUserUid.isEmpty()) {
+            viewModel.loadDashboardData(currentUserUid);
+        } else {
+            loadUserData();
         }
     }
     
@@ -325,6 +379,24 @@ public class DashboardFragment extends Fragment {
         } else {
             binding.cardEmptyState.setVisibility(View.GONE);
             binding.pieChart.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showCategorySelectionBottomSheet() {
+        CategorySelectionBottomSheet bottomSheet = CategorySelectionBottomSheet.newInstance();
+        bottomSheet.setOnCategorySelectedListener(this::showAmountInputBottomSheet);
+        bottomSheet.show(getChildFragmentManager(), "DashboardCategorySelection");
+    }
+
+    private void showAmountInputBottomSheet(CategoryEntity category) {
+        AmountInputBottomSheet bottomSheet = AmountInputBottomSheet.newInstance(category);
+        bottomSheet.setOnExpenseSavedListener(this::onExpenseSavedFromDashboard);
+        bottomSheet.show(getChildFragmentManager(), "DashboardAmountInput");
+    }
+
+    private void onExpenseSavedFromDashboard(ExpenseEntity expense) {
+        if (expenseViewModel != null) {
+            expenseViewModel.insertExpense(expense);
         }
     }
     

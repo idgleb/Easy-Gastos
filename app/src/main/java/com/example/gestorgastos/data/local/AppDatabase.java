@@ -4,6 +4,8 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.example.gestorgastos.data.local.dao.CategoryDao;
 import com.example.gestorgastos.data.local.dao.ExpenseDao;
 import com.example.gestorgastos.data.local.dao.PlanDao;
@@ -20,7 +22,7 @@ import com.example.gestorgastos.data.local.entity.UserEntity;
         CategoryEntity.class,
         ExpenseEntity.class
     },
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -41,10 +43,20 @@ public abstract class AppDatabase extends RoomDatabase {
                         context.getApplicationContext(),
                         AppDatabase.class,
                         "gestor_gastos_database"
-                    ).build();
+                    )
+                    .addMigrations(MIGRATION_1_2)
+                    .build();
                 }
             }
         }
         return INSTANCE;
     }
+    
+    // Migración de versión 1 a 2: agregar campo planExpiresAt
+    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE users ADD COLUMN planExpiresAt INTEGER");
+        }
+    };
 }

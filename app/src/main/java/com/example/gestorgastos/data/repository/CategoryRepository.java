@@ -29,6 +29,13 @@ public interface CategoryRepository {
     
     void updateSyncState(long idLocal, String syncState);
     
+    /**
+     * Sincroniza categorías desde Firestore hacia Room.
+     * Si lastSyncMillis es 0, realiza sincronización completa.
+     * Si lastSyncMillis > 0, realiza sincronización incremental (solo cambios desde ese timestamp).
+     */
+    void syncFromFirestore(String userUid, long lastSyncMillis, RepositoryCallback<Integer> callback);
+    
     interface RepositoryCallback<T> {
         void onSuccess(T result);
         void onError(Exception error);

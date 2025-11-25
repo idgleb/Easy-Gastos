@@ -21,7 +21,7 @@
             android:layout_height="48dp"
             android:background="@drawable/dialog_icon_background"
             android:gravity="center"
-            android:text="✏️"
+            android:text="@string/emoji_pencil"
             android:textSize="24sp"
             android:layout_marginEnd="16dp" />
 
@@ -30,7 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Editar Gasto"
+            android:text="@string/dialog_edit_expense_title"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface" />
@@ -130,7 +130,7 @@
             android:layout_width="wrap_content"
             android:layout_height="56dp"
             android:layout_marginEnd="8dp"
-            android:text="Cancelar"
+            android:text="@string/action_cancel"
             android:textSize="16sp" />
 
         <com.google.android.material.button.MaterialButton
@@ -138,7 +138,7 @@
             style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
             android:layout_height="56dp"
-            android:text="Guardar"
+            android:text="@string/action_save"
             android:textSize="16sp"
             android:textStyle="bold"
             app:cornerRadius="12dp" />

@@ -17,6 +17,8 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
+        // Repositorio de Mercado Pago
+        maven { url = uri("https://artifacts.mercadolibre.com/repository/android-releases/") }
     }
 }
 

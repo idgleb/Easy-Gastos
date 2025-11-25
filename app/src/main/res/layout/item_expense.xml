@@ -26,7 +26,7 @@
                 android:layout_height="40dp"
                 android:gravity="center"
                 android:textSize="24sp"
-                android:text="🍕"
+                android:text="@string/emoji_pizza"
                 android:background="@drawable/circle_background"
                 android:layout_marginEnd="12dp" />
 
@@ -40,7 +40,7 @@
                     android:id="@+id/tvExpenseCategory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Comida"
+                    android:text="@string/text_category_food"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/gris_icono" />
@@ -50,7 +50,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="15 Dic 2024, 14:30"
+                    android:text="@string/text_date_placeholder"
                     android:textSize="12sp"
                     android:textColor="@color/gris_icono" />
 
@@ -60,7 +60,7 @@
                 android:id="@+id/tvExpenseAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="$1,000.00"
+                android:text="@string/text_amount_medium_placeholder"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/gris_icono"

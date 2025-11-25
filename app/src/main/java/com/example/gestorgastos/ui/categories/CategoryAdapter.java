@@ -103,6 +103,8 @@ public class CategoryAdapter extends ListAdapter<CategoryEntity, CategoryAdapter
                 // Usar emoji por defecto
                 ivIcon.setText("⭐");
             }
+            
+            // Los botones siempre están visibles, la verificación se hace en el click listener
         }
     }
     

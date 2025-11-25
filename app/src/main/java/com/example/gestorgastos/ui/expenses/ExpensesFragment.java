@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gestorgastos.R;
 import com.example.gestorgastos.databinding.FragmentExpensesBinding;
 import com.example.gestorgastos.data.local.entity.ExpenseEntity;
 import com.example.gestorgastos.data.local.entity.CategoryEntity;
@@ -69,7 +70,7 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
             @Override
             public void onExpenseClick(ExpenseEntity expense) {
                 // TODO: Mostrar detalles del gasto
-                Toast.makeText(requireContext(), "Gasto: $" + expense.monto, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.toast_expense_value, expense.monto), Toast.LENGTH_SHORT).show();
             }
             
             @Override
@@ -296,7 +297,7 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
             public void onExpenseEdited(ExpenseEntity editedExpense) {
                 // Actualizar el gasto en la base de datos
                 viewModel.updateExpense(editedExpense);
-                Toast.makeText(requireContext(), "Gasto actualizado correctamente", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.toast_expense_updated), Toast.LENGTH_SHORT).show();
             }
             
             @Override

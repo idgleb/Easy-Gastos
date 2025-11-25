@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Categorias"
+            android:text="@string/title_categories"
             android:textSize="24sp"
             android:layout_margin="5dp"
             android:textColor="@color/fondo_frame"
@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="No hay categorías"
+        android:text="@string/text_no_categories"
         android:textSize="16sp"
         android:visibility="gone" />
 

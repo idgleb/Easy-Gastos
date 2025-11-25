@@ -14,11 +14,19 @@ public interface AuthRepository {
     
     void signUp(String email, String password, String name, AuthCallback callback);
     
+    void signInWithGoogle(String idToken, AuthCallback callback);
+    
     void signOut();
     
     void resetPassword(String email, AuthCallback callback);
     
     void deleteAccount(AuthCallback callback);
+
+    /**
+     * Verifica si los datos del usuario necesitan sincronización y, de ser así, la ejecuta en segundo plano.
+     * Se usa para sincronizar cuando la app vuelve al primer plano.
+     */
+    void syncUserDataIfNeeded();
     
     interface AuthCallback {
         void onSuccess(UserEntity user);

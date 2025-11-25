@@ -17,9 +17,16 @@ public interface ExpenseRepository {
     
     void deleteExpense(long idLocal, RepositoryCallback<Void> callback);
     
-    List<ExpenseEntity> getPendingExpenses();
+    void getPendingExpenses(RepositoryCallback<List<ExpenseEntity>> callback);
     
     void updateSyncState(long idLocal, String syncState);
+    
+    /**
+     * Sincroniza gastos desde Firestore hacia Room.
+     * Si lastSyncMillis es 0, realiza sincronización completa.
+     * Si lastSyncMillis > 0, realiza sincronización incremental (solo cambios desde ese timestamp).
+     */
+    void syncFromFirestore(String userUid, long lastSyncMillis, RepositoryCallback<Integer> callback);
     
     interface RepositoryCallback<T> {
         void onSuccess(T result);

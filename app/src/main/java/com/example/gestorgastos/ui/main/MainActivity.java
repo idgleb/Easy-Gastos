@@ -27,6 +27,7 @@ import com.example.gestorgastos.ui.categories.CategoriesFragment;
 import com.example.gestorgastos.ui.categories.CategoryViewModel;
 import com.example.gestorgastos.ui.dashboard.DashboardFragment;
 import com.example.gestorgastos.ui.expenses.ExpensesFragment;
+import com.example.gestorgastos.ui.admin.AdminFragment;
 import com.example.gestorgastos.ui.dialogs.AccountBottomSheet;
 import com.example.gestorgastos.data.local.entity.CategoryEntity;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements AccountBottomSheet.OnAccountActionListener {
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
+    private com.example.gestorgastos.data.local.entity.UserEntity currentUser;
     
     // Constantes para identificar fragmentos
     private static final int FRAGMENT_EXPENSES = 0;
@@ -95,6 +97,14 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         setupBottomNavigationBehavior();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (viewModel != null) {
+            viewModel.syncUserDataIfNeeded();
+        }
+    }
+
     private void initHeightDeSvInfo() {
         binding.constrConteiner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -143,6 +153,13 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     private void loadFragmentWithSmartAnimation(Fragment fragment, int targetFragment) {
         int enterAnim, exitAnim, popEnterAnim, popExitAnim;
         
+        // Si targetFragment es -1, usar animación fade (para fragmentos especiales como Admin)
+        if (targetFragment == -1) {
+            enterAnim = android.R.anim.fade_in;
+            exitAnim = android.R.anim.fade_out;
+            popEnterAnim = android.R.anim.fade_in;
+            popExitAnim = android.R.anim.fade_out;
+        } else {
         // Determinar la dirección de la animación basada en la navegación
         if (currentFragment < targetFragment) {
             // Navegando hacia la derecha (Gastos -> Dashboard -> Categorías)
@@ -162,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
             exitAnim = R.anim.slide_out_left;
             popEnterAnim = R.anim.slide_in_left;
             popExitAnim = R.anim.slide_out_right;
+            }
         }
         
         // Aplicar la transición con animaciones inteligentes
@@ -169,10 +187,13 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
                 .beginTransaction()
                 .setCustomAnimations(enterAnim, exitAnim, popEnterAnim, popExitAnim)
                 .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null) // Permitir volver atrás
                 .commit();
         
-        // Actualizar el fragmento actual
+        // Actualizar el fragmento actual solo si no es un fragmento especial
+        if (targetFragment != -1) {
         currentFragment = targetFragment;
+        }
 
     }
     
@@ -245,7 +266,14 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     }
     
     private void showAccountSheet() {
-        AccountBottomSheet bottomSheet = AccountBottomSheet.newInstance("Usuario", "usuario@email.com");
+        com.example.gestorgastos.data.local.entity.UserEntity user = currentUser;
+        String name = (user != null && user.name != null) ? user.name : "Usuario";
+        String email = (user != null && user.email != null) ? user.email : "usuario@email.com";
+        String planId = (user != null && user.planId != null) ? user.planId : "free";
+        String userUid = (user != null && user.uid != null) ? user.uid : null;
+        String userRole = (user != null && user.role != null) ? user.role : "user";
+
+        AccountBottomSheet bottomSheet = AccountBottomSheet.newInstance(name, email, planId, userUid, userRole);
         bottomSheet.setOnAccountActionListener(this);
         bottomSheet.show(getSupportFragmentManager(), "AccountBottomSheet");
     }
@@ -253,10 +281,36 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     private void observeViewModel() {
         viewModel.getCurrentUser().observe(this, user -> {
             if (user != null) {
+                currentUser = user;
                 // Actualizar el saludo en el AppBar personalizado usando recurso string
                 String saludo = getString(R.string.greeting_user, user.name);
                 binding.customAppbar.tvUserGreeting.setText(saludo);
 
+            }
+        });
+        
+        // Observar cuando el checkout está listo para abrirse
+        viewModel.getPaymentInitPoint().observe(this, initPoint -> {
+            if (initPoint != null) {
+                // Abrir checkout de Mercado Pago en el navegador
+                com.example.gestorgastos.util.MercadoPagoHelper helper = 
+                    new com.example.gestorgastos.util.MercadoPagoHelper();
+                helper.openCheckout(this, initPoint);
+                // Limpiar el estado después de usar
+                viewModel.clearPaymentState();
+            }
+        });
+        
+        // Observar errores en el proceso de pago
+        viewModel.getPaymentError().observe(this, error -> {
+            if (error != null) {
+                android.widget.Toast.makeText(
+                    this,
+                    error,
+                    android.widget.Toast.LENGTH_LONG
+                ).show();
+                // Limpiar el estado después de usar
+                viewModel.clearPaymentState();
             }
         });
     }
@@ -270,6 +324,8 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_logout) {
+            // Desconectar Google Sign-In para permitir seleccionar otra cuenta la próxima vez
+            AuthActivity.signOutGoogle(this);
             viewModel.signOut();
             Intent intent = new Intent(this, AuthActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -284,17 +340,19 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     @Override
     public void onSettingsClicked() {
         // TODO: Implementar navegación a configuración
-        android.widget.Toast.makeText(this, "Configuración", android.widget.Toast.LENGTH_SHORT).show();
+        android.widget.Toast.makeText(this, getString(R.string.account_action_settings), android.widget.Toast.LENGTH_SHORT).show();
     }
     
     @Override
     public void onAboutClicked() {
         // TODO: Implementar navegación a acerca de
-        android.widget.Toast.makeText(this, "Acerca de", android.widget.Toast.LENGTH_SHORT).show();
+        android.widget.Toast.makeText(this, getString(R.string.account_action_about), android.widget.Toast.LENGTH_SHORT).show();
     }
     
     @Override
     public void onLogoutClicked() {
+        // Desconectar Google Sign-In para permitir seleccionar otra cuenta la próxima vez
+        AuthActivity.signOutGoogle(this);
         viewModel.signOut();
         Intent intent = new Intent(this, AuthActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -302,9 +360,28 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         finish();
     }
     
+    @Override
+    public void onUpgradePlanClicked(String userUid, String currentPlanId) {
+        // Delegar la lógica de negocio al ViewModel (Clean Architecture)
+        android.util.Log.d("MainActivity", "onUpgradePlanClicked - userUid: " + userUid);
+        viewModel.upgradePlan(this, userUid);
+    }
+    
+    @Override
+    public void onAdminClicked() {
+        // Navegar a la pantalla de administración
+        android.util.Log.d("MainActivity", "onAdminClicked - Navegando a AdminFragment");
+        AdminFragment adminFragment = new AdminFragment();
+        loadFragmentWithSmartAnimation(adminFragment, -1); // -1 para indicar que es un fragmento especial
+    }
+    
     
     // Método para obtener el UID del usuario actual
     public String getCurrentUserUid() {
         return viewModel.getCurrentUserUid();
     }
+    
+    // Nota: El resultado del pago se maneja automáticamente por el webhook de Cloud Functions
+    // Cuando el usuario vuelve a la app después del pago, el plan ya debería estar actualizado
+    // gracias al webhook que actualiza Firestore
 }

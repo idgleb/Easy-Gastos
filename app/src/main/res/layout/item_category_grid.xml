@@ -26,7 +26,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:textSize="28sp"
-                android:text="🍕"
+                android:text="@string/emoji_pizza"
                 android:textColor="?attr/colorOnPrimaryContainer" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -36,7 +36,7 @@
             android:id="@+id/tvCategoryName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Comida"
+            android:text="@string/text_category_food"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:gravity="center"

@@ -52,8 +52,15 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation("com.google.firebase:firebase-analytics")
+    
+    // Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
+    
     implementation(libs.mpandroidchart)
     implementation(libs.recyclerview)
+    
+    // OkHttp para requests HTTP (ya incluido para Mercado Pago)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

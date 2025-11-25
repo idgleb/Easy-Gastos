@@ -14,9 +14,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gestorgastos.R;
 import com.example.gestorgastos.databinding.FragmentCategoriesBinding;
 import com.example.gestorgastos.data.local.entity.CategoryEntity;
 import com.example.gestorgastos.ui.dialogs.CategoryDialog;
+import com.example.gestorgastos.ui.dialogs.PremiumRequiredDialog;
+import com.example.gestorgastos.ui.main.MainActivity;
 import com.example.gestorgastos.ui.main.MainViewModel;
 
 public class CategoriesFragment extends Fragment implements CategoryDialog.OnCategoryDialogListener {
@@ -55,24 +58,45 @@ public class CategoriesFragment extends Fragment implements CategoryDialog.OnCat
             @Override
             public void onCategoryClick(CategoryEntity category) {
                 // TODO: Mostrar detalles de la categoría
-                Toast.makeText(requireContext(), "Categoría: " + category.name, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.toast_category_prefix, category.name), Toast.LENGTH_SHORT).show();
             }
             
             @Override
             public void onCategoryEdit(CategoryEntity category) {
+                // Verificar plan antes de editar
+                com.example.gestorgastos.data.local.entity.UserEntity user = 
+                    mainViewModel.getCurrentUser().getValue();
+                if (user != null && !"free".equalsIgnoreCase(user.planId)) {
                 showCategoryDialog(category);
+                } else {
+                    showPremiumRequiredDialog();
+                }
             }
             
             @Override
             public void onCategoryDelete(CategoryEntity category) {
+                // Verificar plan antes de eliminar
+                com.example.gestorgastos.data.local.entity.UserEntity user = 
+                    mainViewModel.getCurrentUser().getValue();
+                if (user != null && !"free".equalsIgnoreCase(user.planId)) {
                 // TODO: Mostrar confirmación antes de eliminar
                 viewModel.deleteCategory(category.idLocal);
+                } else {
+                    showPremiumRequiredDialog();
+                }
             }
         });
         
         // Configurar FAB para agregar categoría
         binding.fabAddCategory.setOnClickListener(v -> {
+            // Verificar plan antes de mostrar el diálogo
+            com.example.gestorgastos.data.local.entity.UserEntity user = 
+                mainViewModel.getCurrentUser().getValue();
+            if (user != null && !"free".equalsIgnoreCase(user.planId)) {
             showAddCategoryDialog();
+            } else {
+                showPremiumRequiredDialog();
+            }
         });
         
         // Iniciar animación de pulsación del icono
@@ -122,6 +146,32 @@ public class CategoriesFragment extends Fragment implements CategoryDialog.OnCat
             CategoryDialog dialog = CategoryDialog.newInstance(userUid, category);
             dialog.show(getChildFragmentManager(), "CategoryDialog");
         }
+    }
+    
+    private void showPremiumRequiredDialog() {
+        PremiumRequiredDialog dialog = PremiumRequiredDialog.newInstance();
+        dialog.setOnUpgradeClickListener(() -> {
+            // Iniciar directamente el flujo de actualización de plan
+            Log.d("CategoriesFragment", "onUpgradeClicked - Iniciando actualización de plan");
+            String userUid = mainViewModel.getCurrentUserUid();
+            if (userUid != null && !userUid.isEmpty()) {
+                Log.d("CategoriesFragment", "Usuario encontrado: " + userUid);
+                if (getActivity() instanceof MainActivity) {
+                    Log.d("CategoriesFragment", "Llamando a onUpgradePlanClicked");
+                    // Obtener el planId del usuario actual si está disponible
+                    com.example.gestorgastos.data.local.entity.UserEntity user = 
+                        mainViewModel.getCurrentUser().getValue();
+                    String planId = (user != null && user.planId != null) ? user.planId : "free";
+                    ((MainActivity) getActivity()).onUpgradePlanClicked(userUid, planId);
+                } else {
+                    Log.e("CategoriesFragment", "Activity no es MainActivity: " + getActivity());
+                }
+            } else {
+                Log.e("CategoriesFragment", "userUid es null o vacío");
+                Toast.makeText(getContext(), getString(R.string.toast_category_user_error), Toast.LENGTH_LONG).show();
+            }
+        });
+        dialog.show(getChildFragmentManager(), "PremiumRequiredDialog");
     }
     
     // Implementación de CategoryDialog.OnCategoryDialogListener

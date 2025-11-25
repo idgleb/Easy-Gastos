@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -17,6 +18,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -28,15 +31,25 @@ import com.example.gestorgastos.util.NavBarUtils;
 import com.example.gestorgastos.util.AnimationConstants;
 import com.example.gestorgastos.ui.dialogs.AuthMessageDialog;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 
 import java.util.Objects;
 
 public class AuthActivity extends AppCompatActivity {
+    private static final String TAG = "AuthActivity";
+    
     private ActivityAuthBinding binding;
     private AuthViewModel authViewModel;
     private boolean isSignUpMode = false;
     private boolean isAnimating = false;
     private View legacyBlurOverlay;
+    private GoogleSignInClient googleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +77,10 @@ public class AuthActivity extends AppCompatActivity {
         setupWindowInsets();
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+        
+        // Configurar Google Sign-In
+        setupGoogleSignIn();
+        
         setupViews();
         observeViewModel();
         
@@ -73,6 +90,104 @@ public class AuthActivity extends AppCompatActivity {
         // Animar entrada de la UI
         animateUIEntry();
     }
+    
+    private void setupGoogleSignIn() {
+        // Configurar opciones de Google Sign-In
+        // No especificamos setAccountName para que siempre muestre el selector de cuentas
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+        
+        // Asegurarse de que no haya una cuenta guardada al iniciar
+        // Esto se hace automáticamente cuando se llama a signOut() al cerrar sesión
+        
+        // Configurar ActivityResultLauncher para Google Sign-In
+        googleSignInLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                Intent data = result.getData();
+                
+                if (result.getResultCode() == RESULT_OK && data != null) {
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                    try {
+                        GoogleSignInAccount account = task.getResult(ApiException.class);
+                        if (account != null && account.getIdToken() != null) {
+                            Log.d(TAG, "Google Sign-In exitoso: " + account.getEmail());
+                            authViewModel.signInWithGoogle(account.getIdToken());
+                        } else {
+                            Log.e(TAG, "Google Sign-In: cuenta o token nulo");
+                            showErrorDialog("¡Ups! No pudimos obtener tu información de Google. Intenta de nuevo 😅");
+                        }
+                    } catch (ApiException e) {
+                        Log.e(TAG, "Error en Google Sign-In", e);
+                        String errorMessage = "¡Ups! No pudimos iniciar sesión con Google. ";
+                        int statusCode = e.getStatusCode();
+                        if (statusCode == 12500) {
+                            errorMessage += "Por favor, verifica tu conexión a internet.";
+                        } else if (statusCode == 10) {
+                            errorMessage += "Error de configuración. Verifica:\n" +
+                                    "• El SHA-1 en Firebase Console\n" +
+                                    "• El Web Client ID en strings.xml\n" +
+                                    "• La configuración de OAuth";
+                        } else if (statusCode == 7) {
+                            errorMessage += "Error de red. Verifica tu conexión a internet.";
+                        } else if (statusCode == 8) {
+                            errorMessage += "Error interno. Intenta de nuevo más tarde.";
+                        } else {
+                            errorMessage += "Error código: " + statusCode + ". Intenta de nuevo.";
+                        }
+                        showErrorDialog(errorMessage);
+                    }
+                } else if (data != null) {
+                    // Intentar obtener el error incluso si el resultado no es OK
+                    // Solo para detectar errores de configuración
+                    try {
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                        if (task.isComplete()) {
+                            try {
+                                GoogleSignInAccount account = task.getResult(ApiException.class);
+                                // Si llegamos aquí, no hubo error, pero el resultado no fue OK
+                                Log.d(TAG, "Google Sign-In: resultado no OK pero sin error");
+                            } catch (ApiException e) {
+                                Log.e(TAG, "Error en Google Sign-In (resultado cancelado)", e);
+                                int statusCode = e.getStatusCode();
+                                
+                                // Solo mostrar errores importantes, no cancelaciones
+                                if (statusCode == 10) {
+                                    // Error de configuración - muy importante mostrar
+                                    String errorMessage = "⚠️ Error de configuración de Google Sign-In\n\n" +
+                                            "El Web Client ID no está configurado correctamente o el SHA-1 de tu certificado no está registrado en Firebase.\n\n" +
+                                            "Verifica:\n" +
+                                            "• El Web Client ID en strings.xml\n" +
+                                            "• El SHA-1 en Firebase Console > Configuración del proyecto\n" +
+                                            "• La configuración de OAuth en Google Cloud Console";
+                                    showErrorDialog(errorMessage);
+                                } else if (statusCode == 12500) {
+                                    showErrorDialog("¡Ups! Verifica tu conexión a internet.");
+                                } else if (statusCode != 12501) { // 12501 = SIGN_IN_CANCELLED
+                                    String errorMessage = "Error código: " + statusCode + ". Intenta de nuevo.";
+                                    showErrorDialog(errorMessage);
+                                }
+                                // Si es 12501 (cancelado), no mostrar error
+                            }
+                        } else {
+                            Log.d(TAG, "Google Sign-In cancelado por el usuario");
+                            // No mostrar error si el usuario canceló intencionalmente
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error al procesar resultado de Google Sign-In", e);
+                        // No mostrar error genérico para evitar confusión
+                    }
+                } else {
+                    Log.d(TAG, "Google Sign-In cancelado (sin datos)");
+                    // No mostrar error si el usuario canceló intencionalmente
+                }
+            }
+        );
+    }
 
     private void setupViews() {
         // Botón de inicio de sesión
@@ -81,9 +196,9 @@ public class AuthActivity extends AppCompatActivity {
             String password = Objects.requireNonNull(binding.etPassword.getText()).toString().trim();
             
             if (isSignUpMode) {
-                String name = Objects.requireNonNull(binding.etName.getText()).toString().trim();
-                if (validateInput(email, password, name)) {
-                    authViewModel.signUp(email, password, name);
+                // El nombre se genera automáticamente desde el email en el repositorio
+                if (validateInput(email, password)) {
+                    authViewModel.signUp(email, password, "");
                 }
             } else {
                 if (validateInput(email, password)) {
@@ -103,8 +218,37 @@ public class AuthActivity extends AppCompatActivity {
             handleForgotPassword();
         });
 
+        // Botón de Google Sign-In
+        binding.btnGoogleSignIn.setOnClickListener(v -> {
+            signInWithGoogle();
+        });
+
         // Configurar toggle de visibilidad de contraseña
         setupPasswordVisibilityToggle();
+    }
+    
+    private void signInWithGoogle() {
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
+    
+    /**
+     * Desconecta Google Sign-In para permitir seleccionar otra cuenta la próxima vez
+     */
+    public static void signOutGoogle(Context context) {
+        try {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(context.getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+            
+            GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(context, gso);
+            googleSignInClient.signOut().addOnCompleteListener(task -> {
+                Log.d(TAG, "Google Sign-In desconectado exitosamente");
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Error al desconectar Google Sign-In", e);
+        }
     }
 
     private void updateUI() {
@@ -112,12 +256,10 @@ public class AuthActivity extends AppCompatActivity {
         clearErrors();
         
         if (isSignUpMode) {
-            binding.tilName.setVisibility(View.VISIBLE);
             binding.tvForgotPassword.setVisibility(View.GONE);
             binding.btnSignIn.setText("Crear Cuenta");
             binding.tvMode.setText("¿Ya tienes cuenta? Inicia sesión");
         } else {
-            binding.tilName.setVisibility(View.GONE);
             binding.tvForgotPassword.setVisibility(View.VISIBLE);
             binding.btnSignIn.setText("Iniciar Sesión");
             binding.tvMode.setText("¿No tienes cuenta? Regístrate");
@@ -127,7 +269,6 @@ public class AuthActivity extends AppCompatActivity {
     private void clearErrors() {
         binding.tilEmail.setError(null);
         binding.tilPassword.setError(null);
-        binding.tilName.setError(null);
     }
 
     private boolean validateInput(String email, String password) {
@@ -140,17 +281,21 @@ public class AuthActivity extends AppCompatActivity {
             binding.etEmail.requestFocus();
             return false;
         }
+        if (!isValidEmail(email)) {
+            binding.tilEmail.setError("¡Hmmm! Ese email no parece válido. Revísalo por favor 📧");
+            binding.etEmail.requestFocus();
+            return false;
+        }
         if (password.isEmpty()) {
             binding.tilPassword.setError("¡Oye! Tu contraseña es importante 🔐");
             binding.etPassword.requestFocus();
             return false;
         }
-        if (isSignUpMode && name.isEmpty()) {
-            binding.tilName.setError("¡Hola! ¿Cómo te gustaría que te llamemos? 👋");
-            binding.etName.requestFocus();
-            return false;
-        }
         return true;
+    }
+    
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     private void observeViewModel() {
@@ -166,6 +311,7 @@ public class AuthActivity extends AppCompatActivity {
         authViewModel.getIsLoading().observe(this, isLoading -> {
             animateLoadingState(isLoading);
             binding.btnSignIn.setEnabled(!isLoading);
+            binding.btnGoogleSignIn.setEnabled(!isLoading);
         });
 
         authViewModel.getErrorMessage().observe(this, errorMessage -> {
@@ -267,6 +413,17 @@ public class AuthActivity extends AppCompatActivity {
                 .setStartDelay(AnimationConstants.ScreenEntry.DELAY_MODE_TEXT)
                 .setInterpolator(new DecelerateInterpolator())
                 .start();
+        
+        // Animar botón de Google Sign-In
+        if (binding.btnGoogleSignIn != null) {
+            binding.btnGoogleSignIn.setAlpha(0f);
+            binding.btnGoogleSignIn.animate()
+                    .alpha(1f)
+                    .setDuration(AnimationConstants.ScreenEntry.DURATION_MODE_TEXT)
+                    .setStartDelay(AnimationConstants.ScreenEntry.DELAY_MODE_TEXT + 100)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
     }
 
     /**
@@ -281,56 +438,13 @@ public class AuthActivity extends AppCompatActivity {
         isAnimating = true;
         
         // Cancelar cualquier animación en curso
-        binding.tilName.clearAnimation();
         binding.btnSignIn.clearAnimation();
         
-        // Animar salida del campo nombre si está visible
-        if (binding.tilName.getVisibility() == View.VISIBLE) {
-            binding.tilName.animate()
-                    .alpha(0f)
-                    .translationY(-20f)
-                    .setDuration(AnimationConstants.DURATION_FAST)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            binding.tilName.setVisibility(View.GONE);
-                            updateUI();
-                            animateButtonOnly();
-                        }
-                    })
-                    .start();
-        } else {
+        // Actualizar la UI sin animaciones de campo de nombre
             updateUI();
-            // Si el campo de nombre debe aparecer, animarlo
-            if (binding.tilName.getVisibility() == View.VISIBLE) {
-                animateNameFieldIn();
-            } else {
-                animateButtonOnly();
-            }
-        }
-    }
-
-    /**
-     * Anima solo el campo de nombre cuando aparece
-     */
-    private void animateNameFieldIn() {
-        // Cancelar animaciones previas del campo nombre
-        binding.tilName.clearAnimation();
-        binding.tilName.setAlpha(0f);
-        binding.tilName.setTranslationY(-20f);
-        binding.tilName.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(AnimationConstants.FormField.DURATION)
-                .setInterpolator(new DecelerateInterpolator())
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        // Después de animar el campo, animar el botón
+        
+        // Animar solo el botón
                         animateButtonOnly();
-                    }
-                })
-                .start();
     }
 
     /**
@@ -340,8 +454,7 @@ public class AuthActivity extends AppCompatActivity {
         // Cancelar animaciones previas del botón
         binding.btnSignIn.clearAnimation();
         
-        // Animar botón con un pequeño delay para evitar superposición
-        binding.btnSignIn.postDelayed(() -> {
+        // Animar botón
             binding.btnSignIn.animate()
                     .scaleX(AnimationConstants.AuthButton.SCALE_FACTOR)
                     .scaleY(AnimationConstants.AuthButton.SCALE_FACTOR)
@@ -362,7 +475,6 @@ public class AuthActivity extends AppCompatActivity {
                                 .start();
                     })
                     .start();
-        }, AnimationConstants.AuthButton.DELAY);
     }
 
     /**
@@ -424,6 +536,12 @@ public class AuthActivity extends AppCompatActivity {
                     .alpha(AnimationConstants.AuthButton.ALPHA_DISABLED)
                     .setDuration(AnimationConstants.AuthButton.DURATION)
                     .start();
+            if (binding.btnGoogleSignIn != null) {
+                binding.btnGoogleSignIn.animate()
+                        .alpha(AnimationConstants.AuthButton.ALPHA_DISABLED)
+                        .setDuration(AnimationConstants.AuthButton.DURATION)
+                        .start();
+            }
         } else {
             binding.progressBar.animate()
                     .alpha(0f)
@@ -440,6 +558,12 @@ public class AuthActivity extends AppCompatActivity {
                     .alpha(1f)
                     .setDuration(AnimationConstants.AuthButton.DURATION)
                     .start();
+            if (binding.btnGoogleSignIn != null) {
+                binding.btnGoogleSignIn.animate()
+                        .alpha(1f)
+                        .setDuration(AnimationConstants.AuthButton.DURATION)
+                        .start();
+            }
         }
     }
 

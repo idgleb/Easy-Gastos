@@ -6,8 +6,10 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
+
 import com.example.gestorgastos.data.local.entity.ExpenseEntity;
 import com.example.gestorgastos.data.local.model.CategorySum;
+
 import java.util.List;
 
 @Dao
@@ -20,6 +22,9 @@ public interface ExpenseDao {
     
     @Query("SELECT * FROM expenses WHERE idLocal = :idLocal LIMIT 1")
     ExpenseEntity getExpenseById(long idLocal);
+    
+    @Query("SELECT * FROM expenses WHERE remoteId = :remoteId LIMIT 1")
+    ExpenseEntity getExpenseByRemoteId(String remoteId);
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertExpense(ExpenseEntity expense);
@@ -35,6 +40,9 @@ public interface ExpenseDao {
     
     @Query("UPDATE expenses SET syncState = :syncState WHERE idLocal = :idLocal")
     void updateSyncState(long idLocal, String syncState);
+
+    @Query("UPDATE expenses SET categoryRemoteId = :newRemoteId, syncState = 'PENDING' WHERE categoryRemoteId = :oldLocalRef")
+    void migrateCategoryRemoteId(String oldLocalRef, String newRemoteId);
     
     // Consultas para dashboard - temporalmente comentadas
     // @Query("SELECT categoryRemoteId, SUM(monto) AS total FROM expenses WHERE userUid = :userUid AND fechaEpochMillis >= :monthStart AND fechaEpochMillis <= :monthEnd AND deletedAt IS NULL GROUP BY categoryRemoteId ORDER BY total DESC")

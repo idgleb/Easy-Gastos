@@ -29,4 +29,8 @@ public interface UserDao {
     
     @Query("SELECT * FROM users")
     LiveData<List<UserEntity>> getAllUsers();
+    
+    // Verificar y actualizar planes expirados
+    @Query("UPDATE users SET planId = 'free', planExpiresAt = NULL, updatedAt = :updatedAt WHERE planExpiresAt IS NOT NULL AND planExpiresAt < :currentTime AND planId != 'free'")
+    void expirePlans(long currentTime, long updatedAt);
 }
