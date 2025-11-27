@@ -133,6 +133,10 @@ public class DashboardFragment extends Fragment {
         pieChart.setCenterText("Gastos");
         pieChart.setCenterTextSize(18f);
         
+        // Configurar color del texto central según el tema
+        int textColor = ContextCompat.getColor(requireContext(), R.color.gris_icono);
+        pieChart.setCenterTextColor(textColor);
+        
         // Ocultar leyenda
         pieChart.getLegend().setEnabled(false);
         
