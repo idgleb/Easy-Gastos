@@ -5,8 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="24dp"
-    app:cardBackgroundColor="#80000000"
-    app:strokeColor="#B3FFFFFF"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
+    app:strokeColor="?attr/colorOutline"
     app:strokeWidth="1dp"
     app:cardCornerRadius="16dp">
 
@@ -42,7 +42,7 @@
             android:text="@string/dialog_message_title"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="@color/white" />
+            android:textColor="?attr/colorOnSurface" />
 
         <!-- Botón de cerrar -->
         <ImageButton
@@ -53,7 +53,7 @@
             android:src="@drawable/ic_close"
             android:contentDescription="Cerrar"
             android:padding="8dp"
-            app:tint="#B3FFFFFF" />
+            app:tint="?attr/colorOnSurfaceVariant" />
 
     </LinearLayout>
 
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:text="@string/dialog_message_placeholder"
         android:textSize="16sp"
-        android:textColor="#E6FFFFFF"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:lineSpacingExtra="4dp"
         android:layout_marginBottom="24dp" />
 
@@ -75,19 +75,16 @@
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
         android:text="@string/action_ok"
-        android:textColor="@android:color/white"
+        android:textColor="?attr/colorOnPrimary"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        app:useMaterialThemeColors="false"
-        app:backgroundTint="@color/dialog_button_glass_bg"
-        app:strokeColor="@color/dialog_button_glass_stroke"
-        app:strokeWidth="1dp"
+        app:backgroundTint="?attr/colorPrimary"
+        app:strokeWidth="0dp"
         app:cornerRadius="16dp"
         app:icon="@drawable/ic_chevron_right"
-        app:iconTint="@android:color/white"
+        app:iconTint="?attr/colorOnPrimary"
         app:iconGravity="textEnd"
-        app:iconPadding="8dp"
-        app:rippleColor="#40FFFFFF" />
+        app:iconPadding="8dp" />
 
     </LinearLayout>
 
