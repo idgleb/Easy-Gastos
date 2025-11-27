@@ -12,8 +12,8 @@
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Surface colors -->
-        <item name="colorSurface">@color/white</item>
-        <item name="colorSurfaceVariant">@color/white</item>
+        <item name="colorSurface">@android:color/white</item>
+        <item name="colorSurfaceVariant">@android:color/white</item>
         <item name="colorOnSurface">@color/gris_icono</item>
         <item name="colorOnSurfaceVariant">@color/gris</item>
         <!-- Background -->
