@@ -417,8 +417,16 @@ public class CategoryRepositoryImpl implements CategoryRepository {
                                 Timestamp updatedAt = documentSnapshot.getTimestamp("updated_at");
                                 Timestamp deletedAt = documentSnapshot.getTimestamp("deleted_at");
                                 
-                                // Buscar si ya existe en Room
+                                // Buscar si ya existe en Room por remoteId
                                 CategoryEntity existing = categoryDao.getCategoryByRemoteId(remoteId);
+                                
+                                // Si no se encuentra por remoteId, buscar por atributos (nombre e icono)
+                                if (existing == null && name != null && icon != null) {
+                                    existing = categoryDao.findCategoryByAttributes(userUid, name, icon);
+                                    if (existing != null) {
+                                        Log.d("CategoryRepositoryImpl", "Categoría encontrada por atributos (deduplicación): " + existing.name);
+                                    }
+                                }
                                 
                                 if (existing != null) {
                                     // Actualizar categoría existente
