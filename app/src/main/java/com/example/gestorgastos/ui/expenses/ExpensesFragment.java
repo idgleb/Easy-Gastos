@@ -85,6 +85,12 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
                 // TODO: Mostrar confirmación antes de eliminar
                 viewModel.deleteExpense(expense.idLocal);
             }
+            
+            @Override
+            public void onUnknownCategoryDetected(String categoryRemoteId) {
+                // Sincronizar categorías cuando detectamos una categoría desconocida
+                syncCategoriesForUnknownCategory(categoryRemoteId);
+            }
         });
         
         // Configurar FAB para agregar gasto
@@ -369,6 +375,22 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
             }
         });
         dialog.show(getParentFragmentManager(), "ErrorDialog");
+    }
+    
+    /**
+     * Sincroniza categorías cuando se detecta una categoría desconocida
+     */
+    private void syncCategoriesForUnknownCategory(String categoryRemoteId) {
+        Log.d("ExpensesFragment", "Categoría desconocida detectada: " + categoryRemoteId + " - Sincronizando...");
+        
+        mainViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                // Forzar sincronización inmediata de categorías desde Firestore
+                mainViewModel.syncUserDataIfNeeded();
+                
+                Log.d("ExpensesFragment", "Sincronización de categorías iniciada para categoría: " + categoryRemoteId);
+            }
+        });
     }
     
     @Override

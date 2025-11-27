@@ -32,6 +32,7 @@ public class ExpenseAdapter extends ListAdapter<ExpenseEntity, ExpenseAdapter.Ex
         void onExpenseClick(ExpenseEntity expense);
         void onExpenseEdit(ExpenseEntity expense);
         void onExpenseDelete(ExpenseEntity expense);
+        void onUnknownCategoryDetected(String categoryRemoteId);
     }
     
     public ExpenseAdapter() {
@@ -238,11 +239,19 @@ public class ExpenseAdapter extends ListAdapter<ExpenseEntity, ExpenseAdapter.Ex
                     tvCategory.setVisibility(View.VISIBLE);
                     tvCategoryIcon.setVisibility(View.VISIBLE);
                 } else {
-                    // Si no encontramos la categoría y no es de ejemplo, mostrar "Cargando..."
-                    tvCategory.setText("Cargando...");
-                    tvCategoryIcon.setText("⏳");
+                    // Si no encontramos la categoría, mostrar ID abreviado
+                    String shortId = expense.categoryRemoteId.length() > 8 
+                        ? expense.categoryRemoteId.substring(0, 8) + "..." 
+                        : expense.categoryRemoteId;
+                    tvCategory.setText("Cat. " + shortId);
+                    tvCategoryIcon.setText("❓");
                     tvCategory.setVisibility(View.VISIBLE);
                     tvCategoryIcon.setVisibility(View.VISIBLE);
+                    
+                    // Notificar que hay una categoría desconocida
+                    if (listener != null) {
+                        listener.onUnknownCategoryDetected(expense.categoryRemoteId);
+                    }
                 }
             } else {
                 tvCategory.setText("Sin categoría");
