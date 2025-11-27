@@ -13,7 +13,7 @@
         android:layout_marginBottom="8dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="?attr/colorSurfaceVariant"
         app:strokeColor="?attr/colorOutlineVariant"
         app:strokeWidth="1dp">
 
@@ -111,7 +111,7 @@
                 android:layout_marginHorizontal="6dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:strokeColor="?attr/colorOutlineVariant"
                 app:strokeWidth="1dp">
 
@@ -176,7 +176,7 @@
             android:layout_marginHorizontal="6dp"
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp">
 
@@ -242,7 +242,7 @@
             app:cardCornerRadius="24dp"
             android:layout_marginHorizontal="6dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp">
 
@@ -310,7 +310,7 @@
             android:layout_marginHorizontal="6dp"
             app:cardCornerRadius="24dp"
             app:cardElevation="8dp"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             android:visibility="gone">
 
             <LinearLayout
@@ -410,7 +410,7 @@
             app:cardCornerRadius="24dp"
             android:layout_marginHorizontal="6dp"
             app:cardElevation="8dp"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp"
             android:visibility="gone">

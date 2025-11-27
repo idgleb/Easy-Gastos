@@ -2,7 +2,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     
-    <solid android:color="@color/bottom_nav_surface" />
+    <solid android:color="#FF1E1E1E" />
     
     <!-- Esquinas redondeadas solo en la parte superior -->
     <corners 
@@ -12,3 +12,4 @@
         android:bottomRightRadius="0dp" />
         
 </shape>
+

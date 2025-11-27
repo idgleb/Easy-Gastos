@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/text_no_expenses"
-        android:textColor="@color/black"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="16sp"
         android:visibility="gone" />
 

@@ -52,8 +52,8 @@
             android:layout_marginBottom="24dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/white"
-            app:strokeColor="#E0E0E0"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -70,8 +70,8 @@
                     android:layout_marginEnd="16dp"
                     app:cardCornerRadius="32dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="@color/white"
-                    app:strokeColor="#E0E0E0"
+                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:strokeColor="?attr/colorOutline"
                     app:strokeWidth="1dp">
 
                     <ImageView
@@ -137,8 +137,8 @@
                 android:layout_marginBottom="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
-                app:strokeColor="#E0E0E0"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:strokeColor="?attr/colorOutline"
                 app:strokeWidth="1dp"
                 app:rippleColor="?attr/colorPrimary">
 
@@ -158,7 +158,7 @@
                         app:icon="@drawable/ic_settings"
                         app:iconSize="20dp"
                         app:iconTint="?attr/colorOnSurfaceVariant"
-                        app:backgroundTint="@color/white" />
+                        app:backgroundTint="@android:color/transparent" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -190,8 +190,8 @@
                 android:layout_marginBottom="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
-                app:strokeColor="#E0E0E0"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:strokeColor="?attr/colorOutline"
                 app:strokeWidth="1dp"
                 app:rippleColor="?attr/colorPrimary">
 
@@ -211,7 +211,7 @@
                         app:icon="@drawable/ic_info"
                         app:iconSize="20dp"
                         app:iconTint="?attr/colorOnSurfaceVariant"
-                        app:backgroundTint="@color/white" />
+                        app:backgroundTint="@android:color/transparent" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -244,8 +244,8 @@
                 android:visibility="gone"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
-                app:strokeColor="#E0E0E0"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:strokeColor="?attr/colorOutline"
                 app:strokeWidth="1dp"
                 app:rippleColor="?attr/colorPrimary">
 
@@ -265,7 +265,7 @@
                         app:icon="@drawable/ic_settings"
                         app:iconSize="20dp"
                         app:iconTint="?attr/colorPrimary"
-                        app:backgroundTint="@color/white" />
+                        app:backgroundTint="@android:color/transparent" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -298,8 +298,8 @@
                 android:visibility="gone"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
-                app:strokeColor="#E0E0E0"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:strokeColor="?attr/colorOutline"
                 app:strokeWidth="1dp"
                 app:rippleColor="?attr/colorPrimary">
 
@@ -319,7 +319,7 @@
                         app:icon="@drawable/ic_sync"
                         app:iconSize="20dp"
                         app:iconTint="?attr/colorPrimary"
-                        app:backgroundTint="@color/white" />
+                        app:backgroundTint="@android:color/transparent" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -351,8 +351,8 @@
                 android:layout_marginBottom="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
-                app:strokeColor="#E0E0E0"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:strokeColor="?attr/colorOutline"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -371,7 +371,7 @@
                         app:icon="@drawable/ic_sync"
                         app:iconSize="20dp"
                         app:iconTint="?attr/colorOnSurfaceVariant"
-                        app:backgroundTint="@color/white" />
+                        app:backgroundTint="@android:color/transparent" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -407,8 +407,8 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
-                app:strokeColor="#E0E0E0"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:strokeColor="?attr/colorOutline"
                 app:strokeWidth="1dp"
                 app:rippleColor="?attr/colorError">
 
@@ -428,7 +428,7 @@
                         app:icon="@drawable/ic_logout"
                         app:iconSize="20dp"
                         app:iconTint="?attr/colorError"
-                        app:backgroundTint="@color/white" />
+                        app:backgroundTint="@android:color/transparent" />
 
                     <TextView
                         android:layout_width="0dp"
