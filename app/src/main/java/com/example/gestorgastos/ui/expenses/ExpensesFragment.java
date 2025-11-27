@@ -42,6 +42,7 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
     private boolean expensesLoaded = false;
     private boolean syncInProgress = false;
     private java.util.Set<String> unknownCategoriesDetected = new java.util.HashSet<>();
+    private String currentUserUid = null;
     
     @Nullable
     @Override
@@ -148,6 +149,8 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
         // Observar usuario actual
         mainViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
+                currentUserUid = user.uid; // Guardar el UID actual
+                
                 // Debug: ver todas las categorías en la base de datos
                 ((CategoryRepositoryImpl) categoryViewModel.getCategoryRepository()).debugCategories(user.uid);
                 
@@ -385,6 +388,13 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
     private void syncCategoriesForUnknownCategory(String categoryRemoteId) {
         // Evitar sincronizaciones redundantes
         if (unknownCategoriesDetected.contains(categoryRemoteId)) {
+            Log.d("ExpensesFragment", "Categoría ya solicitada: " + categoryRemoteId);
+            return;
+        }
+        
+        // Verificar que tenemos el userUid
+        if (currentUserUid == null) {
+            Log.w("ExpensesFragment", "No se puede descargar categoría sin userUid");
             return;
         }
         
@@ -392,31 +402,28 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
         
         Log.d("ExpensesFragment", "Categoría desconocida detectada: " + categoryRemoteId + " - Descargando...");
         
-        // Obtener el userUid actual
-        mainViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
-            if (user != null && !unknownCategoriesDetected.isEmpty()) {
-                // Descargar la categoría específica desde Firestore
-                com.example.gestorgastos.data.repository.CategoryRepositoryImpl categoryRepo = 
-                    (com.example.gestorgastos.data.repository.CategoryRepositoryImpl) categoryViewModel.getCategoryRepository();
+        // Descargar la categoría específica desde Firestore
+        com.example.gestorgastos.data.repository.CategoryRepositoryImpl categoryRepo = 
+            (com.example.gestorgastos.data.repository.CategoryRepositoryImpl) categoryViewModel.getCategoryRepository();
+        
+        categoryRepo.fetchCategoryById(currentUserUid, categoryRemoteId, 
+            new com.example.gestorgastos.data.repository.CategoryRepository.RepositoryCallback<CategoryEntity>() {
+                @Override
+                public void onSuccess(CategoryEntity result) {
+                    Log.d("ExpensesFragment", "✅ Categoría descargada exitosamente: " + result.name + " (" + categoryRemoteId + ")");
+                    // La categoría se agregará automáticamente al LiveData de categorías
+                    // y el adapter se actualizará automáticamente
+                }
                 
-                categoryRepo.fetchCategoryById(user.uid, categoryRemoteId, 
-                    new com.example.gestorgastos.data.repository.CategoryRepository.RepositoryCallback<CategoryEntity>() {
-                        @Override
-                        public void onSuccess(CategoryEntity result) {
-                            Log.d("ExpensesFragment", "Categoría descargada exitosamente: " + result.name);
-                            // La categoría se agregará automáticamente al LiveData de categorías
-                            // y el adapter se actualizará automáticamente
-                        }
-                        
-                        @Override
-                        public void onError(Exception error) {
-                            Log.e("ExpensesFragment", "Error al descargar categoría: " + categoryRemoteId, error);
-                            // Intentar sincronización completa como fallback
-                            mainViewModel.syncUserDataIfNeeded();
-                        }
-                    });
-            }
-        });
+                @Override
+                public void onError(Exception error) {
+                    Log.e("ExpensesFragment", "❌ Error al descargar categoría: " + categoryRemoteId, error);
+                    // Remover de la lista para permitir reintento
+                    unknownCategoriesDetected.remove(categoryRemoteId);
+                    // Intentar sincronización completa como fallback
+                    mainViewModel.syncUserDataIfNeeded();
+                }
+            });
     }
     
     @Override
