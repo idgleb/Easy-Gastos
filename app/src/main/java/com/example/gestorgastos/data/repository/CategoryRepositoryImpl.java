@@ -398,4 +398,88 @@ public class CategoryRepositoryImpl implements CategoryRepository {
                     });
         }
     }
+    
+    /**
+     * Descarga una categoría específica desde Firestore por su remoteId
+     */
+    public void fetchCategoryById(String userUid, String categoryRemoteId, RepositoryCallback<CategoryEntity> callback) {
+        Log.d("CategoryRepositoryImpl", "Descargando categoría específica: " + categoryRemoteId);
+        
+        firestoreDataSource.getCategoryById(userUid, categoryRemoteId)
+                .addOnSuccessListener(documentSnapshot -> {
+                    executor.execute(() -> {
+                        try {
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                String remoteId = documentSnapshot.getId();
+                                String name = documentSnapshot.getString("name");
+                                String icon = documentSnapshot.getString("icon");
+                                Boolean isActive = documentSnapshot.getBoolean("is_active");
+                                Timestamp updatedAt = documentSnapshot.getTimestamp("updated_at");
+                                Timestamp deletedAt = documentSnapshot.getTimestamp("deleted_at");
+                                
+                                // Buscar si ya existe en Room
+                                CategoryEntity existing = categoryDao.getCategoryByRemoteId(remoteId);
+                                
+                                if (existing != null) {
+                                    // Actualizar categoría existente
+                                    existing.name = name != null ? name : existing.name;
+                                    existing.icono = icon != null ? icon : existing.icono;
+                                    existing.isActive = isActive != null ? isActive : existing.isActive;
+                                    existing.remoteId = remoteId;
+                                    existing.syncState = "SYNCED";
+                                    
+                                    if (updatedAt != null) {
+                                        existing.updatedAt = updatedAt.toDate().getTime();
+                                    }
+                                    if (deletedAt != null) {
+                                        existing.deletedAt = deletedAt.toDate().getTime();
+                                    }
+                                    
+                                    categoryDao.updateCategory(existing);
+                                    Log.d("CategoryRepositoryImpl", "Categoría actualizada: " + existing.name);
+                                    
+                                    if (callback != null) {
+                                        callback.onSuccess(existing);
+                                    }
+                                } else {
+                                    // Crear nueva categoría
+                                    CategoryEntity newCategory = new CategoryEntity();
+                                    newCategory.userUid = userUid;
+                                    newCategory.name = name != null ? name : "Sin nombre";
+                                    newCategory.icono = icon != null ? icon : "⭐";
+                                    newCategory.isActive = isActive != null ? isActive : true;
+                                    newCategory.remoteId = remoteId;
+                                    newCategory.syncState = "SYNCED";
+                                    newCategory.updatedAt = updatedAt != null ? updatedAt.toDate().getTime() : DateTimeUtil.getCurrentEpochMillis();
+                                    newCategory.deletedAt = deletedAt != null ? deletedAt.toDate().getTime() : null;
+                                    
+                                    long id = categoryDao.insertCategory(newCategory);
+                                    newCategory.idLocal = id;
+                                    Log.d("CategoryRepositoryImpl", "Nueva categoría creada: " + newCategory.name + " (ID: " + id + ")");
+                                    
+                                    if (callback != null) {
+                                        callback.onSuccess(newCategory);
+                                    }
+                                }
+                            } else {
+                                Log.w("CategoryRepositoryImpl", "Categoría no encontrada en Firestore: " + categoryRemoteId);
+                                if (callback != null) {
+                                    callback.onError(new Exception("Categoría no encontrada"));
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.e("CategoryRepositoryImpl", "Error al procesar categoría descargada", e);
+                            if (callback != null) {
+                                callback.onError(e);
+                            }
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("CategoryRepositoryImpl", "Error al descargar categoría desde Firestore", e);
+                    if (callback != null) {
+                        callback.onError(e);
+                    }
+                });
+    }
 }

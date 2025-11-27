@@ -40,6 +40,8 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
     private List<ExpenseEntity> pendingExpenses = new ArrayList<>();
     private boolean categoriesLoaded = false;
     private boolean expensesLoaded = false;
+    private boolean syncInProgress = false;
+    private java.util.Set<String> unknownCategoriesDetected = new java.util.HashSet<>();
     
     @Nullable
     @Override
@@ -381,14 +383,38 @@ public class ExpensesFragment extends Fragment implements CategorySelectionBotto
      * Sincroniza categorías cuando se detecta una categoría desconocida
      */
     private void syncCategoriesForUnknownCategory(String categoryRemoteId) {
-        Log.d("ExpensesFragment", "Categoría desconocida detectada: " + categoryRemoteId + " - Sincronizando...");
+        // Evitar sincronizaciones redundantes
+        if (unknownCategoriesDetected.contains(categoryRemoteId)) {
+            return;
+        }
         
+        unknownCategoriesDetected.add(categoryRemoteId);
+        
+        Log.d("ExpensesFragment", "Categoría desconocida detectada: " + categoryRemoteId + " - Descargando...");
+        
+        // Obtener el userUid actual
         mainViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
-            if (user != null) {
-                // Forzar sincronización inmediata de categorías desde Firestore
-                mainViewModel.syncUserDataIfNeeded();
+            if (user != null && !unknownCategoriesDetected.isEmpty()) {
+                // Descargar la categoría específica desde Firestore
+                com.example.gestorgastos.data.repository.CategoryRepositoryImpl categoryRepo = 
+                    (com.example.gestorgastos.data.repository.CategoryRepositoryImpl) categoryViewModel.getCategoryRepository();
                 
-                Log.d("ExpensesFragment", "Sincronización de categorías iniciada para categoría: " + categoryRemoteId);
+                categoryRepo.fetchCategoryById(user.uid, categoryRemoteId, 
+                    new com.example.gestorgastos.data.repository.CategoryRepository.RepositoryCallback<CategoryEntity>() {
+                        @Override
+                        public void onSuccess(CategoryEntity result) {
+                            Log.d("ExpensesFragment", "Categoría descargada exitosamente: " + result.name);
+                            // La categoría se agregará automáticamente al LiveData de categorías
+                            // y el adapter se actualizará automáticamente
+                        }
+                        
+                        @Override
+                        public void onError(Exception error) {
+                            Log.e("ExpensesFragment", "Error al descargar categoría: " + categoryRemoteId, error);
+                            // Intentar sincronización completa como fallback
+                            mainViewModel.syncUserDataIfNeeded();
+                        }
+                    });
             }
         });
     }

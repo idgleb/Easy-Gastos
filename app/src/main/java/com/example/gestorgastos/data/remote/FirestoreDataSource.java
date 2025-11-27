@@ -77,6 +77,11 @@ public class FirestoreDataSource {
                 .collection("categories").document(categoryId).delete();
     }
     
+    public Task<DocumentSnapshot> getCategoryById(String userUid, String categoryId) {
+        return firestore.collection("users").document(userUid)
+                .collection("categories").document(categoryId).get();
+    }
+    
     // Expenses
     public Task<DocumentReference> createExpense(String userUid, Map<String, Object> expenseData) {
         return firestore.collection("users").document(userUid)
