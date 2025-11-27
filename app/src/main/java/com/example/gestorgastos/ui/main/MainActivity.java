@@ -50,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Aplicar el tema antes de setContentView
+        com.example.gestorgastos.util.ThemeManager.applyTheme(this);
+        
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -78,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
             WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
             controller.setAppearanceLightStatusBars(false);
         }
-        // Forzar modo claro
-        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -421,8 +422,10 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     // Implementación de AccountBottomSheet.OnAccountActionListener
     @Override
     public void onSettingsClicked() {
-        // TODO: Implementar navegación a configuración
-        android.widget.Toast.makeText(this, getString(R.string.account_action_settings), android.widget.Toast.LENGTH_SHORT).show();
+        // Navegar al fragmento de configuración
+        com.example.gestorgastos.ui.settings.SettingsFragment settingsFragment = 
+            new com.example.gestorgastos.ui.settings.SettingsFragment();
+        loadFragmentWithSmartAnimation(settingsFragment, -1); // -1 para indicar que es un fragmento especial
     }
     
     @Override

@@ -101,4 +101,15 @@
     <string name="toast_category_prefix">Categoría: %1$s</string>
     <string name="toast_category_user_error">Error: No se pudo obtener el usuario. Por favor, inicia sesión nuevamente.</string>
     <string name="connection_offline">Sin conexión... Modo offline</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">Configuración</string>
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_theme_title">Modo Oscuro</string>
+    <string name="settings_theme_description">Personaliza la apariencia de la aplicación</string>
+    <string name="settings_theme_light">Modo Claro</string>
+    <string name="settings_theme_dark">Modo Oscuro</string>
+    <string name="settings_theme_system">Usar configuración del sistema</string>
+    <string name="settings_theme_info">El tema se aplicará inmediatamente al seleccionar una opción</string>
+    <string name="settings_theme_icon_desc">Icono de tema</string>
 </resources>

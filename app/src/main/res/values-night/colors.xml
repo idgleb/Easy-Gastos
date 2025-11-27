@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores para modo oscuro -->
+    <color name="appbar_blue">#FF1E88E5</color>
+    <color name="fondo_frame">#FF121212</color>
+    
+    <color name="gris_icono">#E0E0E0</color>
+    <color name="gris">#B0B0B0</color>
+    <color name="gris_checkbox">#909090</color>
+    <color name="gris_lineas">#424242</color>
+    <color name="gris_categorias">#424242</color>
+    <color name="oval">#2C2C2C</color>
+    <color name="gris_light">#1E1E1E</color>
+    <color name="gris_mover">#2C2C2C</color>
+    <color name="gris_redondo">#505050</color>
+    <color name="fondo_scroll">#121212</color>
+    <color name="blue_principal">#42A5F5</color>
+    <color name="blue_light">#1E3A5F</color>
+    <color name="blue_light2">#1A2332</color>
+    <color name="fondo_principal">#1565C0</color>
+    <color name="boton_secundario">#1976D2</color>
+    <color name="boton_transporente">#801976D2</color>
+    <color name="boton_secundario2">#1565C0</color>
+    <color name="background_color">#FF121212</color>
+    
+    <!-- Colores Material 3 para BottomNavigationView en modo oscuro -->
+    <color name="bottom_nav_surface">#1E1E1E</color>
+    <color name="bottom_nav_surface_variant">#2C2C2C</color>
+    <color name="bottom_nav_on_surface">#E0E0E0</color>
+    <color name="bottom_nav_on_surface_variant">#B0B0B0</color>
+    <color name="bottom_nav_primary">#42A5F5</color>
+    <color name="bottom_nav_primary_container">#2C2C2C</color>
+    <color name="bottom_nav_on_primary">#000000</color>
+    <color name="bottom_nav_outline">#424242</color>
+    <color name="bottom_nav_elevation">#000000</color>
+</resources>
+

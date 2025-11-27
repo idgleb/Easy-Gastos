@@ -53,10 +53,10 @@ public class AuthActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        // Aplicar el tema antes de setContentView
+        com.example.gestorgastos.util.ThemeManager.applyTheme(this);
         
-        // Forzar modo claro
-        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        super.onCreate(savedInstanceState);
         
         binding = ActivityAuthBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
