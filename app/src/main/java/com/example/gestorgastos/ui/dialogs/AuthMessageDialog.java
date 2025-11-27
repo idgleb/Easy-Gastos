@@ -26,6 +26,7 @@ public class AuthMessageDialog extends DialogFragment {
     // Tipos de mensaje
     public static final String TYPE_SUCCESS = "success";
     public static final String TYPE_INFO = "info";
+    public static final String TYPE_ERROR = "error";
     
     
     private static final String ARG_TITLE = "title";
@@ -159,6 +160,10 @@ public class AuthMessageDialog extends DialogFragment {
         
         if (TYPE_SUCCESS.equals(type)) {
             ivMessageIcon.setText("✅");
+            ivMessageIcon.setTextColor(context.getColor(R.color.white));
+            btnAction.setBackgroundColor(context.getColor(R.color.dialog_button_glass_bg));
+        } else if (TYPE_ERROR.equals(type)) {
+            ivMessageIcon.setText("❌");
             ivMessageIcon.setTextColor(context.getColor(R.color.white));
             btnAction.setBackgroundColor(context.getColor(R.color.dialog_button_glass_bg));
         } else {

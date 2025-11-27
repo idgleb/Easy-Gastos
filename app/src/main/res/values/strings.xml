@@ -100,4 +100,5 @@
     <string name="toast_copy_password_error">No se pudo acceder al portapapeles</string>
     <string name="toast_category_prefix">Categoría: %1$s</string>
     <string name="toast_category_user_error">Error: No se pudo obtener el usuario. Por favor, inicia sesión nuevamente.</string>
+    <string name="connection_offline">Sin conexión... Modo offline</string>
 </resources>

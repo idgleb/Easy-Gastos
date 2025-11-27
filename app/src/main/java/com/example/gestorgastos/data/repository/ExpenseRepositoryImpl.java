@@ -12,6 +12,7 @@ import com.example.gestorgastos.data.local.entity.CategoryEntity;
 import com.example.gestorgastos.data.local.entity.ExpenseEntity;
 import com.example.gestorgastos.data.remote.FirestoreDataSource;
 import com.example.gestorgastos.util.DateTimeUtil;
+import com.example.gestorgastos.util.ConnectionErrorNotifier;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -214,6 +215,19 @@ public class ExpenseRepositoryImpl implements ExpenseRepository {
                                         // Buscar si ya existe en Room por remoteId
                                         ExpenseEntity existing = expenseDao.getExpenseByRemoteId(remoteId);
                                         
+                                        // Si no se encuentra por remoteId, buscar por atributos (para gastos creados en offline)
+                                        if (existing == null && categoryRemoteId != null && amount != null && timestamp != null) {
+                                            existing = expenseDao.findExpenseByAttributes(
+                                                userUid,
+                                                categoryRemoteId,
+                                                amount,
+                                                timestamp.toDate().getTime()
+                                            );
+                                            if (existing != null) {
+                                                Log.d("ExpenseRepositoryImpl", "Gasto encontrado por atributos (creado en offline): idLocal=" + existing.idLocal);
+                                            }
+                                        }
+                                        
                                         if (existing != null) {
                                             // Actualizar gasto existente
                                             if (categoryRemoteId != null) {
@@ -364,6 +378,8 @@ public class ExpenseRepositoryImpl implements ExpenseRepository {
                     })
                     .addOnFailureListener(e -> {
                         Log.e("ExpenseRepositoryImpl", "Error al crear gasto en Firestore", e);
+                        // Notificar error de conexión si aplica
+                        ConnectionErrorNotifier.getInstance().notifyIfConnectionError(e);
                         executor.execute(() ->
                                 expenseDao.updateSyncState(expense.idLocal, "ERROR")
                         );
@@ -378,6 +394,8 @@ public class ExpenseRepositoryImpl implements ExpenseRepository {
                     })
                     .addOnFailureListener(e -> {
                         Log.e("ExpenseRepositoryImpl", "Error al actualizar gasto en Firestore", e);
+                        // Notificar error de conexión si aplica
+                        ConnectionErrorNotifier.getInstance().notifyIfConnectionError(e);
                         executor.execute(() ->
                                 expenseDao.updateSyncState(expense.idLocal, "ERROR")
                         );

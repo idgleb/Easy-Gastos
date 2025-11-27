@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.mpandroidchart)
     implementation(libs.recyclerview)
     
+    // SwipeRefreshLayout para pull-to-refresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    
     // OkHttp para requests HTTP (ya incluido para Mercado Pago)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     

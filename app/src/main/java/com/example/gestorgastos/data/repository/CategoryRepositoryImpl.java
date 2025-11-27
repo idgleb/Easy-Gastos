@@ -11,6 +11,7 @@ import com.example.gestorgastos.data.local.dao.ExpenseDao;
 import com.example.gestorgastos.data.local.entity.CategoryEntity;
 import com.example.gestorgastos.data.remote.FirestoreDataSource;
 import com.example.gestorgastos.util.DateTimeUtil;
+import com.example.gestorgastos.util.ConnectionErrorNotifier;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -227,6 +228,14 @@ public class CategoryRepositoryImpl implements CategoryRepository {
                                         // Buscar si ya existe en Room por remoteId
                                         CategoryEntity existing = categoryDao.getCategoryByRemoteId(remoteId);
                                         
+                                        // Si no se encuentra por remoteId, buscar por atributos (para categorías creadas en offline)
+                                        if (existing == null && name != null && icon != null) {
+                                            existing = categoryDao.findCategoryByAttributes(userUid, name, icon);
+                                            if (existing != null) {
+                                                Log.d("CategoryRepositoryImpl", "Categoría encontrada por atributos (creada en offline): " + existing.name);
+                                            }
+                                        }
+                                        
                                         if (existing != null) {
                                             // Actualizar categoría existente
                                             existing.name = name != null ? name : existing.name;
@@ -364,6 +373,8 @@ public class CategoryRepositoryImpl implements CategoryRepository {
                     })
                     .addOnFailureListener(e -> {
                         Log.e("CategoryRepositoryImpl", "Error al crear categoría en Firestore", e);
+                        // Notificar error de conexión si aplica
+                        ConnectionErrorNotifier.getInstance().notifyIfConnectionError(e);
                         executor.execute(() ->
                                 categoryDao.updateSyncState(category.idLocal, "ERROR")
                         );
@@ -379,6 +390,8 @@ public class CategoryRepositoryImpl implements CategoryRepository {
                     })
                     .addOnFailureListener(e -> {
                         Log.e("CategoryRepositoryImpl", "Error al actualizar categoría en Firestore", e);
+                        // Notificar error de conexión si aplica
+                        ConnectionErrorNotifier.getInstance().notifyIfConnectionError(e);
                         executor.execute(() ->
                                 categoryDao.updateSyncState(category.idLocal, "ERROR")
                         );

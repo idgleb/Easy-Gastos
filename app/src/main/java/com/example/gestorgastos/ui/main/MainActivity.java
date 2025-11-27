@@ -29,6 +29,7 @@ import com.example.gestorgastos.ui.dashboard.DashboardFragment;
 import com.example.gestorgastos.ui.expenses.ExpensesFragment;
 import com.example.gestorgastos.ui.admin.AdminFragment;
 import com.example.gestorgastos.ui.dialogs.AccountBottomSheet;
+import com.example.gestorgastos.ui.dialogs.AuthMessageDialog;
 import com.example.gestorgastos.data.local.entity.CategoryEntity;
 import java.util.List;
 import java.util.ArrayList;
@@ -88,6 +89,9 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         setupUserInfo();
         observeViewModel();
         
+        // Iniciar monitoreo de red
+        com.example.gestorgastos.util.NetworkMonitor.getInstance().startMonitoring(this);
+        
         // Cargar fragmento inicial
         if (savedInstanceState == null) {
             loadFragment(new ExpensesFragment());
@@ -103,6 +107,24 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         if (viewModel != null) {
             viewModel.syncUserDataIfNeeded();
         }
+        // Reiniciar monitoreo de red
+        com.example.gestorgastos.util.NetworkMonitor.getInstance().startMonitoring(this);
+        // Verificar estado actual después de un breve delay
+        binding.getRoot().postDelayed(() -> {
+            com.example.gestorgastos.util.NetworkMonitor.getInstance().checkCurrentNetworkState();
+            // También verificar si hay error pendiente y mostrar banner si es necesario
+            if (com.example.gestorgastos.util.ConnectionErrorNotifier.getInstance().hasConnectionError()) {
+                android.util.Log.d("MainActivity", "🔔 Hay error de conexión pendiente en onResume, mostrando banner");
+                showConnectionBanner(true);
+            }
+        }, 500);
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Detener monitoreo de red cuando la actividad no está visible
+        com.example.gestorgastos.util.NetworkMonitor.getInstance().stopMonitoring();
     }
 
     private void initHeightDeSvInfo() {
@@ -258,6 +280,15 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
             
             if (fragment != null && targetFragment != -1) {
                 loadFragmentWithSmartAnimation(fragment, targetFragment);
+                // Verificar estado de conexión después de cambiar de fragmento
+                binding.getRoot().postDelayed(() -> {
+                    com.example.gestorgastos.util.NetworkMonitor.getInstance().checkCurrentNetworkState();
+                    // Asegurar que el banner se muestre si hay error de conexión
+                    if (com.example.gestorgastos.util.ConnectionErrorNotifier.getInstance().hasConnectionError()) {
+                        android.util.Log.d("MainActivity", "🔔 Error de conexión detectado después de cambiar fragmento, mostrando banner");
+                        showConnectionBanner(true);
+                    }
+                }, 300);
                 return true;
             }
             
@@ -313,6 +344,57 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
                 viewModel.clearPaymentState();
             }
         });
+        
+        // Observar errores de conexión persistentes (UNAVAILABLE, UnknownHostException, etc.)
+        viewModel.getConnectionError().observe(this, errorMessage -> {
+            android.util.Log.d("MainActivity", "🔔 Cambio en estado de conexión - errorMessage: " + 
+                (errorMessage != null && !errorMessage.isEmpty() ? errorMessage.substring(0, Math.min(30, errorMessage.length())) : "null"));
+            
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                android.util.Log.d("MainActivity", "🔔 Error de conexión detectado, mostrando banner");
+                showConnectionBanner(true);
+            } else {
+                android.util.Log.d("MainActivity", "✅ Error de conexión limpiado, ocultando banner");
+                showConnectionBanner(false);
+            }
+        });
+        
+        // Verificar estado inicial del banner después de un breve delay
+        binding.getRoot().postDelayed(() -> {
+            if (com.example.gestorgastos.util.ConnectionErrorNotifier.getInstance().hasConnectionError()) {
+                android.util.Log.d("MainActivity", "🔔 Hay error de conexión pendiente al iniciar, mostrando banner");
+                showConnectionBanner(true);
+            }
+        }, 1500);
+    }
+    
+    private void showConnectionBanner(boolean show) {
+        if (binding == null) {
+            return;
+        }
+        
+        if (show) {
+            if (binding.bannerConnection.getVisibility() != View.VISIBLE) {
+                binding.bannerConnection.setVisibility(View.VISIBLE);
+                // Animación suave de aparición
+                binding.bannerConnection.setAlpha(0f);
+                binding.bannerConnection.animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .start();
+                android.util.Log.d("MainActivity", "✅ Banner de conexión mostrado");
+            }
+        } else {
+            if (binding.bannerConnection.getVisibility() == View.VISIBLE) {
+                // Animación suave de desaparición
+                binding.bannerConnection.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction(() -> binding.bannerConnection.setVisibility(View.GONE))
+                    .start();
+                android.util.Log.d("MainActivity", "✅ Banner de conexión ocultado");
+            }
+        }
     }
     
     @Override

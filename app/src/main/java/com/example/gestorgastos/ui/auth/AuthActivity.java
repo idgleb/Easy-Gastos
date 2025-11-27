@@ -116,13 +116,16 @@ public class AuthActivity extends AppCompatActivity {
                         GoogleSignInAccount account = task.getResult(ApiException.class);
                         if (account != null && account.getIdToken() != null) {
                             Log.d(TAG, "Google Sign-In exitoso: " + account.getEmail());
+                            // El spinner ya está visible, el ViewModel lo manejará
                             authViewModel.signInWithGoogle(account.getIdToken());
                         } else {
                             Log.e(TAG, "Google Sign-In: cuenta o token nulo");
+                            showLoadingStateImmediate(false); // Ocultar spinner en caso de error
                             showErrorDialog("¡Ups! No pudimos obtener tu información de Google. Intenta de nuevo 😅");
                         }
                     } catch (ApiException e) {
                         Log.e(TAG, "Error en Google Sign-In", e);
+                        showLoadingStateImmediate(false); // Ocultar spinner en caso de error
                         String errorMessage = "¡Ups! No pudimos iniciar sesión con Google. ";
                         int statusCode = e.getStatusCode();
                         if (statusCode == 12500) {
@@ -154,6 +157,7 @@ public class AuthActivity extends AppCompatActivity {
                             } catch (ApiException e) {
                                 Log.e(TAG, "Error en Google Sign-In (resultado cancelado)", e);
                                 int statusCode = e.getStatusCode();
+                                showLoadingStateImmediate(false); // Ocultar spinner siempre
                                 
                                 // Solo mostrar errores importantes, no cancelaciones
                                 if (statusCode == 10) {
@@ -165,24 +169,34 @@ public class AuthActivity extends AppCompatActivity {
                                             "• El SHA-1 en Firebase Console > Configuración del proyecto\n" +
                                             "• La configuración de OAuth en Google Cloud Console";
                                     showErrorDialog(errorMessage);
+                                } else if (statusCode == 7) {
+                                    // NETWORK_ERROR
+                                    showErrorDialog("¡Ups! Error de red. Verifica tu conexión a internet e intenta de nuevo.");
                                 } else if (statusCode == 12500) {
                                     showErrorDialog("¡Ups! Verifica tu conexión a internet.");
-                                } else if (statusCode != 12501) { // 12501 = SIGN_IN_CANCELLED
-                                    String errorMessage = "Error código: " + statusCode + ". Intenta de nuevo.";
+                                } else if (statusCode == 12501) {
+                                    // SIGN_IN_CANCELLED - usuario canceló, no mostrar error
+                                    Log.d(TAG, "Usuario canceló Google Sign-In");
+                                } else {
+                                    // Otros errores
+                                    String errorMessage = "¡Ups! No pudimos iniciar sesión con Google.\n\n" +
+                                            "Error código: " + statusCode + ". Intenta de nuevo.";
                                     showErrorDialog(errorMessage);
                                 }
-                                // Si es 12501 (cancelado), no mostrar error
                             }
                         } else {
                             Log.d(TAG, "Google Sign-In cancelado por el usuario");
+                            showLoadingStateImmediate(false); // Ocultar spinner
                             // No mostrar error si el usuario canceló intencionalmente
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error al procesar resultado de Google Sign-In", e);
+                        showLoadingStateImmediate(false); // Ocultar spinner
                         // No mostrar error genérico para evitar confusión
                     }
                 } else {
                     Log.d(TAG, "Google Sign-In cancelado (sin datos)");
+                    showLoadingStateImmediate(false); // Ocultar spinner
                     // No mostrar error si el usuario canceló intencionalmente
                 }
             }
@@ -198,10 +212,14 @@ public class AuthActivity extends AppCompatActivity {
             if (isSignUpMode) {
                 // El nombre se genera automáticamente desde el email en el repositorio
                 if (validateInput(email, password)) {
+                    // Mostrar spinner inmediatamente
+                    showLoadingStateImmediate(true);
                     authViewModel.signUp(email, password, "");
                 }
             } else {
                 if (validateInput(email, password)) {
+                    // Mostrar spinner inmediatamente
+                    showLoadingStateImmediate(true);
                     authViewModel.signIn(email, password);
                 }
             }
@@ -220,6 +238,8 @@ public class AuthActivity extends AppCompatActivity {
 
         // Botón de Google Sign-In
         binding.btnGoogleSignIn.setOnClickListener(v -> {
+            // Mostrar spinner inmediatamente
+            showLoadingStateImmediate(true);
             signInWithGoogle();
         });
 
@@ -304,12 +324,18 @@ public class AuthActivity extends AppCompatActivity {
             if (user != null) {
                 // Usuario autenticado, navegar a MainActivity con animación
                 Log.d("AuthActivity", "Navegando a MainActivity");
+                // Ocultar spinner antes de navegar
+                showLoadingStateImmediate(false);
                 animateTransitionToMain();
             }
         });
 
         authViewModel.getIsLoading().observe(this, isLoading -> {
-            animateLoadingState(isLoading);
+            // El ViewModel maneja el estado de carga, pero solo animamos si no está ya visible
+            // para evitar conflictos con showLoadingStateImmediate
+            if (!isLoading || binding.progressBar.getVisibility() != View.VISIBLE) {
+                animateLoadingState(isLoading);
+            }
             binding.btnSignIn.setEnabled(!isLoading);
             binding.btnGoogleSignIn.setEnabled(!isLoading);
         });
@@ -521,7 +547,68 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     /**
-     * Anima el estado de carga
+     * Muestra u oculta el estado de carga inmediatamente (sin animación de entrada)
+     * Útil para mostrar feedback instantáneo cuando el usuario presiona un botón
+     */
+    private void showLoadingStateImmediate(boolean isLoading) {
+        if (isLoading) {
+            // Mostrar spinner inmediatamente sin animación de fade-in
+            binding.progressBar.setVisibility(View.VISIBLE);
+            binding.progressBar.setAlpha(1f);
+            binding.progressBar.bringToFront();
+            
+            // Deshabilitar botones inmediatamente
+            binding.btnSignIn.setEnabled(false);
+            if (binding.btnGoogleSignIn != null) {
+                binding.btnGoogleSignIn.setEnabled(false);
+            }
+            
+            // Animar botones a estado deshabilitado
+            binding.btnSignIn.animate()
+                    .alpha(AnimationConstants.AuthButton.ALPHA_DISABLED)
+                    .setDuration(AnimationConstants.AuthButton.DURATION)
+                    .start();
+            if (binding.btnGoogleSignIn != null) {
+                binding.btnGoogleSignIn.animate()
+                        .alpha(AnimationConstants.AuthButton.ALPHA_DISABLED)
+                        .setDuration(AnimationConstants.AuthButton.DURATION)
+                        .start();
+            }
+        } else {
+            // Ocultar spinner con animación
+            binding.progressBar.animate()
+                    .alpha(0f)
+                    .setDuration(AnimationConstants.Loading.DURATION)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            binding.progressBar.setVisibility(View.GONE);
+                        }
+                    })
+                    .start();
+
+            // Rehabilitar botones
+            binding.btnSignIn.setEnabled(true);
+            if (binding.btnGoogleSignIn != null) {
+                binding.btnGoogleSignIn.setEnabled(true);
+            }
+            
+            // Animar botones a estado normal
+            binding.btnSignIn.animate()
+                    .alpha(1f)
+                    .setDuration(AnimationConstants.AuthButton.DURATION)
+                    .start();
+            if (binding.btnGoogleSignIn != null) {
+                binding.btnGoogleSignIn.animate()
+                        .alpha(1f)
+                        .setDuration(AnimationConstants.AuthButton.DURATION)
+                        .start();
+            }
+        }
+    }
+
+    /**
+     * Anima el estado de carga (usado por el ViewModel)
      */
     private void animateLoadingState(boolean isLoading) {
         if (isLoading) {

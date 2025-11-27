@@ -9,7 +9,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
+import com.example.gestorgastos.data.local.entity.UserEntity;
 import com.example.gestorgastos.databinding.BottomSheetAccountBinding;
+import com.example.gestorgastos.ui.main.MainViewModel;
 import com.example.gestorgastos.util.SyncPrefs;
 import com.example.gestorgastos.work.SyncWorker;
 
@@ -17,10 +20,14 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.gestorgastos.util.NavBarUtils;
+import android.util.Log;
 
 public class AccountBottomSheet extends BottomSheetDialogFragment {
     
+    private static final String TAG = "AccountBottomSheet";
+    
     private BottomSheetAccountBinding binding;
+    private MainViewModel viewModel;
     private String userName = "Usuario";
     private String userEmail = "usuario@email.com";
     private String userPlanId = "free";
@@ -63,7 +70,61 @@ public class AccountBottomSheet extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
+        // Inicializar ViewModel
+        viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        
         setupViews();
+        observeViewModel();
+    }
+    
+    private void observeViewModel() {
+        // Observar cambios en el usuario actual
+        Log.d(TAG, "🔔 Configurando observador de usuario en AccountBottomSheet");
+        viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                Log.d(TAG, "👤 Usuario recibido en AccountBottomSheet: " + user.name + ", Plan: " + user.planId);
+                updateUserInfo(user);
+            } else {
+                Log.w(TAG, "⚠️ Usuario es null en AccountBottomSheet");
+            }
+        });
+    }
+    
+    private void updateUserInfo(UserEntity user) {
+        // Actualizar información del usuario
+        userName = user.name != null ? user.name : "Usuario";
+        userEmail = user.email != null ? user.email : "usuario@email.com";
+        userPlanId = user.planId != null ? user.planId : "free";
+        userUid = user.uid;
+        userRole = user.role != null ? user.role : "user";
+        
+        Log.d(TAG, "🔄 Actualizando UI de AccountBottomSheet - Plan: " + userPlanId);
+        
+        // Actualizar vistas
+        if (binding != null) {
+            binding.tvUserName.setText(userName);
+            binding.tvUserEmail.setText(userEmail);
+            
+            String planLabel;
+            if ("free".equalsIgnoreCase(userPlanId)) {
+                planLabel = "Plan: Free";
+                binding.cardUpgradePlan.setVisibility(View.VISIBLE);
+            } else {
+                planLabel = "Plan: " + userPlanId;
+                binding.cardUpgradePlan.setVisibility(View.GONE);
+            }
+            binding.tvUserPlan.setText(planLabel);
+            Log.d(TAG, "✅ Plan actualizado en UI: " + planLabel);
+            
+            // Mostrar botón de administración solo si el usuario es admin
+            if ("admin".equalsIgnoreCase(userRole)) {
+                binding.cardAdmin.setVisibility(View.VISIBLE);
+            } else {
+                binding.cardAdmin.setVisibility(View.GONE);
+            }
+        } else {
+            Log.w(TAG, "⚠️ binding es null, no se puede actualizar UI");
+        }
     }
     
     @Override
@@ -74,28 +135,8 @@ public class AccountBottomSheet extends BottomSheetDialogFragment {
     }
     
     private void setupViews() {
-        // Configurar información del usuario
-        binding.tvUserName.setText(userName);
-        binding.tvUserEmail.setText(userEmail);
-
-        String planLabel;
-        if ("free".equalsIgnoreCase(userPlanId)) {
-            planLabel = "Plan: Free";
-            // Mostrar botón de actualizar plan solo si el plan es free
-            binding.cardUpgradePlan.setVisibility(View.VISIBLE);
-        } else {
-            planLabel = "Plan: " + userPlanId;
-            binding.cardUpgradePlan.setVisibility(View.GONE);
-        }
-        binding.tvUserPlan.setText(planLabel);
+        // La información del usuario se actualizará en observeViewModel()
         
-        // Mostrar botón de administración solo si el usuario es admin
-        if ("admin".equalsIgnoreCase(userRole)) {
-            binding.cardAdmin.setVisibility(View.VISIBLE);
-        } else {
-            binding.cardAdmin.setVisibility(View.GONE);
-        }
-
         // Mostrar información de última sincronización
         long lastSyncMillis = SyncPrefs.getLastSyncMillis(requireContext());
         if (lastSyncMillis > 0) {

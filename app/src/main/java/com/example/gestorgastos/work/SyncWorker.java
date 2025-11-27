@@ -9,12 +9,17 @@ import androidx.work.WorkerParameters;
 
 import com.example.gestorgastos.data.repository.CategoryRepositoryImpl;
 import com.example.gestorgastos.data.repository.ExpenseRepositoryImpl;
+import com.example.gestorgastos.data.repository.AdminRepositoryImpl;
 import com.example.gestorgastos.util.SyncPrefs;
 import com.example.gestorgastos.data.repository.AuthRepositoryImpl;
 
 /**
  * Worker encargado de sincronizar con Firestore todas las entidades pendientes.
- * Actualmente sincroniza categorías y gastos con syncState = "PENDING".
+ * Sincroniza:
+ * - Categorías con syncState = "PENDING" (creaciones, actualizaciones, eliminaciones)
+ * - Gastos con syncState = "PENDING" (creaciones, actualizaciones, eliminaciones)
+ * - Usuarios con syncState = "PENDING" (actualizaciones)
+ * - Eliminaciones de usuarios pendientes (soft deletes)
  */
 public class SyncWorker extends Worker {
 
@@ -35,10 +40,13 @@ public class SyncWorker extends Worker {
             // Repositorios (cada uno maneja sus propios hilos internos)
             CategoryRepositoryImpl categoryRepository = new CategoryRepositoryImpl(appContext);
             ExpenseRepositoryImpl expenseRepository = new ExpenseRepositoryImpl(appContext);
+            AdminRepositoryImpl adminRepository = new AdminRepositoryImpl(appContext);
 
             // Lanzar sincronización de pendientes (fire-and-forget)
             categoryRepository.syncPendingCategoriesWithFirestore();
             expenseRepository.syncPendingExpensesWithFirestore();
+            adminRepository.syncPendingUsersWithFirestore(); // Actualizaciones pendientes
+            adminRepository.syncPendingDeletionsWithServer(); // Eliminaciones pendientes
 
             // Además, sincronizar datos desde Firestore hacia Room para el usuario actual
             AuthRepositoryImpl authRepository = new AuthRepositoryImpl(appContext);

@@ -50,6 +50,9 @@ public interface CategoryDao {
     @Query("UPDATE categories SET syncState = :syncState WHERE idLocal = :idLocal")
     void updateSyncState(long idLocal, String syncState);
     
+    @Query("SELECT * FROM categories WHERE userUid = :userUid AND name = :name AND icono = :icono AND deletedAt IS NULL LIMIT 1")
+    CategoryEntity findCategoryByAttributes(String userUid, String name, String icono);
+    
     @Query("SELECT * FROM categories WHERE userUid = :userUid ORDER BY idLocal ASC")
     List<CategoryEntity> getAllCategoriesByUserDebug(String userUid);
 }

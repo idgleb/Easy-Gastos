@@ -134,7 +134,9 @@ public class DashboardViewModel extends AndroidViewModel {
         isLoading.setValue(true);
         
         // Obtener categorías y gastos
-        LiveData<List<CategoryEntity>> categoriesLiveData = categoryRepository.getActiveCategoriesByUser(userUid);
+        // Usar getAllCategoriesByUser para incluir categorías inactivas en el matching
+        // (los gastos pueden referenciar categorías que fueron desactivadas)
+        LiveData<List<CategoryEntity>> categoriesLiveData = categoryRepository.getAllCategoriesByUser(userUid);
         LiveData<List<ExpenseEntity>> expensesLiveData = expenseRepository.getExpensesByUser(userUid);
         
         android.util.Log.d("DashboardViewModel", "LiveData de categorías obtenido: " + (categoriesLiveData != null));
@@ -245,52 +247,102 @@ public class DashboardViewModel extends AndroidViewModel {
         
         android.util.Log.d("DashboardViewModel", "=== CREANDO RESUMENES DE CATEGORÍAS ===");
         android.util.Log.d("DashboardViewModel", "Total del mes para porcentajes: $" + totalMonth);
+        android.util.Log.d("DashboardViewModel", "Categorías recibidas: " + categories.size());
+        android.util.Log.d("DashboardViewModel", "Gastos recibidos: " + expenses.size());
         
-        // Calcular totales por categoría usando categoryRemoteId
-        Map<String, Double> categoryTotals = new HashMap<>();
-        for (ExpenseEntity expense : expenses) {
-            String categoryRemoteId = expense.categoryRemoteId;
-            double currentTotal = categoryTotals.getOrDefault(categoryRemoteId, 0.0);
-            double newTotal = currentTotal + expense.monto;
-            categoryTotals.put(categoryRemoteId, newTotal);
-            
-            android.util.Log.d("DashboardViewModel", "Gasto agregado a categoría " + categoryRemoteId + 
-                ": $" + expense.monto + " (total: $" + newTotal + ")");
+        // Crear un mapa de categorías por diferentes identificadores para búsqueda rápida
+        Map<String, CategoryEntity> categoryByRemoteId = new HashMap<>();
+        Map<String, CategoryEntity> categoryByLocalId = new HashMap<>();
+        
+        for (CategoryEntity category : categories) {
+            if (category.remoteId != null && !category.remoteId.isEmpty()) {
+                categoryByRemoteId.put(category.remoteId, category);
+                android.util.Log.d("DashboardViewModel", "Categoría mapeada por remoteId: " + category.remoteId + " -> " + category.name);
+            }
+            // También mapear por fallback local_X
+            String localFallback = "local_" + category.idLocal;
+            categoryByLocalId.put(localFallback, category);
+            android.util.Log.d("DashboardViewModel", "Categoría mapeada por localId: " + localFallback + " -> " + category.name);
         }
         
-        android.util.Log.d("DashboardViewModel", "Total de categorías con gastos: " + categoryTotals.size());
-        for (Map.Entry<String, Double> entry : categoryTotals.entrySet()) {
-            android.util.Log.d("DashboardViewModel", "Categoría " + entry.getKey() + ": $" + entry.getValue());
-        }
+        // Calcular totales por categoría - usar el idLocal de la categoría como clave única
+        Map<Long, Double> categoryTotals = new HashMap<>();
+        Map<Long, CategoryEntity> categoryMap = new HashMap<>();
+        
+        // Crear un mapa temporal para categorías no encontradas (usando remoteId como clave)
+        Map<String, Double> unknownCategoryTotals = new HashMap<>();
+        Map<String, String> unknownCategoryIds = new HashMap<>();
         
         List<CategorySummary> summaries = new ArrayList<>();
         
-        // Crear resúmenes
-        for (CategoryEntity category : categories) {
-            double amount = 0.0;
+        for (ExpenseEntity expense : expenses) {
+            String expenseCategoryId = expense.categoryRemoteId;
+            CategoryEntity matchedCategory = null;
             
-            // Intentar encontrar gastos para esta categoría usando diferentes métodos
-            if (category.remoteId != null && !category.remoteId.isEmpty()) {
-                // Método 1: Usar remoteId directamente
-                amount = categoryTotals.getOrDefault(category.remoteId, 0.0);
-                android.util.Log.d("DashboardViewModel", "Intentando coincidencia por remoteId: " + category.remoteId);
+            // Intentar encontrar la categoría correspondiente
+            if (expenseCategoryId != null && !expenseCategoryId.isEmpty()) {
+                // Método 1: Buscar por remoteId en el mapa
+                matchedCategory = categoryByRemoteId.get(expenseCategoryId);
+                
+                // Método 2: Si no se encuentra, buscar por fallback local_X
+                if (matchedCategory == null) {
+                    matchedCategory = categoryByLocalId.get(expenseCategoryId);
+                }
             }
             
-            if (amount == 0.0) {
-                // Método 2: Usar fallback "local_" + idLocal
-                String fallbackId = "local_" + category.idLocal;
-                amount = categoryTotals.getOrDefault(fallbackId, 0.0);
-                android.util.Log.d("DashboardViewModel", "Intentando coincidencia por fallback: " + fallbackId);
+            if (matchedCategory != null) {
+                long categoryLocalId = matchedCategory.idLocal;
+                double currentTotal = categoryTotals.getOrDefault(categoryLocalId, 0.0);
+                double newTotal = currentTotal + expense.monto;
+                categoryTotals.put(categoryLocalId, newTotal);
+                categoryMap.put(categoryLocalId, matchedCategory);
+                
+                android.util.Log.d("DashboardViewModel", "Gasto $" + expense.monto + 
+                    " agregado a categoría " + matchedCategory.name + 
+                    " (categoryRemoteId: " + expenseCategoryId + 
+                    ", total: $" + newTotal + ")");
+            } else {
+                // Agrupar gastos con categorías no encontradas por su remoteId
+                double currentTotal = unknownCategoryTotals.getOrDefault(expenseCategoryId, 0.0);
+                double newTotal = currentTotal + expense.monto;
+                unknownCategoryTotals.put(expenseCategoryId, newTotal);
+                unknownCategoryIds.put(expenseCategoryId, expenseCategoryId);
+                android.util.Log.w("DashboardViewModel", "⚠️ No se encontró categoría para gasto con categoryRemoteId: " + expenseCategoryId + 
+                    " - Agregado a categorías desconocidas (total: $" + newTotal + ")");
             }
+        }
+        
+        // Agregar categorías desconocidas como resúmenes genéricos
+        for (Map.Entry<String, Double> entry : unknownCategoryTotals.entrySet()) {
+            String categoryId = entry.getKey();
+            double amount = entry.getValue();
             
-            double percentage = totalMonth > 0 ? (amount / totalMonth) * 100 : 0;
-            
-            android.util.Log.d("DashboardViewModel", "Procesando categoría: " + category.name + 
-                " (ID Local: " + category.idLocal + ", Remote ID: " + category.remoteId + 
-                ") - Monto encontrado: $" + amount + " - Porcentaje: " + percentage + "%");
-            
-            // Solo incluir categorías con gastos
-            if (amount > 0) {
+            // Crear un resumen genérico para categorías no encontradas
+            CategorySummary unknownSummary = new CategorySummary(
+                "❓", // Icono genérico
+                "Categoría desconocida (" + categoryId.substring(0, Math.min(8, categoryId.length())) + "...)",
+                amount,
+                totalMonth > 0 ? (amount / totalMonth) * 100 : 0,
+                0
+            );
+            summaries.add(unknownSummary);
+            android.util.Log.d("DashboardViewModel", "Resumen agregado para categoría desconocida: " + categoryId + " - $" + amount);
+        }
+        
+        android.util.Log.d("DashboardViewModel", "Total de categorías con gastos: " + categoryTotals.size());
+        for (Map.Entry<Long, Double> entry : categoryTotals.entrySet()) {
+            CategoryEntity cat = categoryMap.get(entry.getKey());
+            android.util.Log.d("DashboardViewModel", "Categoría " + (cat != null ? cat.name : "desconocida") + 
+                " (idLocal: " + entry.getKey() + "): $" + entry.getValue());
+        }
+        
+        // Crear resúmenes solo para categorías que tienen gastos
+        for (Map.Entry<Long, Double> entry : categoryTotals.entrySet()) {
+            CategoryEntity category = categoryMap.get(entry.getKey());
+            if (category != null) {
+                double amount = entry.getValue();
+                double percentage = totalMonth > 0 ? (amount / totalMonth) * 100 : 0;
+                
                 CategorySummary summary = new CategorySummary(
                     category.icono,
                     category.name,
@@ -299,9 +351,7 @@ public class DashboardViewModel extends AndroidViewModel {
                     0 // CategoryEntity no tiene color, usar 0 como default
                 );
                 summaries.add(summary);
-                android.util.Log.d("DashboardViewModel", "Resumen agregado: " + category.name + " - $" + amount);
-            } else {
-                android.util.Log.d("DashboardViewModel", "Categoría sin gastos, omitiendo: " + category.name);
+                android.util.Log.d("DashboardViewModel", "Resumen agregado: " + category.name + " - $" + amount + " (" + percentage + "%)");
             }
         }
         

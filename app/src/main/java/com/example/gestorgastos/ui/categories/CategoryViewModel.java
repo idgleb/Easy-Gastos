@@ -127,7 +127,7 @@ public class CategoryViewModel extends AndroidViewModel {
             @Override
             public void onError(Exception error) {
                 isLoading.postValue(false);
-                errorMessage.postValue("Error al crear categoría: " + error.getMessage());
+                errorMessage.postValue(translateError(error, "create"));
             }
         });
     }
@@ -155,7 +155,7 @@ public class CategoryViewModel extends AndroidViewModel {
             public void onError(Exception error) {
                 Log.e("CategoryViewModel", "Error al actualizar categoría", error);
                 isLoading.postValue(false);
-                errorMessage.postValue("Error al actualizar categoría: " + error.getMessage());
+                errorMessage.postValue(translateError(error, "update"));
             }
         });
     }
@@ -180,7 +180,7 @@ public class CategoryViewModel extends AndroidViewModel {
             @Override
             public void onError(Exception error) {
                 isLoading.postValue(false);
-                errorMessage.postValue("Error al eliminar categoría: " + error.getMessage());
+                errorMessage.postValue(translateError(error, "delete"));
             }
         });
     }
@@ -205,5 +205,109 @@ public class CategoryViewModel extends AndroidViewModel {
         category.icono = icono;
         category.isActive = true;
         return category;
+    }
+    
+    /**
+     * Traduce los errores técnicos a mensajes amigables para el usuario
+     */
+    private String translateError(Exception error, String context) {
+        if (error == null) {
+            return "Ocurrió un error inesperado. Por favor, intenta de nuevo.";
+        }
+        
+        // Verificar si es un error de Firestore UNAVAILABLE
+        if (error instanceof com.google.firebase.firestore.FirebaseFirestoreException) {
+            com.google.firebase.firestore.FirebaseFirestoreException firestoreError = 
+                (com.google.firebase.firestore.FirebaseFirestoreException) error;
+            if (firestoreError.getCode() == com.google.firebase.firestore.FirebaseFirestoreException.Code.UNAVAILABLE) {
+                return "📡 Sin conexión a internet\n\n" +
+                       "No se pudo conectar con los servidores de Firebase.\n\n" +
+                       "Por favor:\n\n" +
+                       "• Verifica que tengas conexión a internet activa\n" +
+                       "• Asegúrate de tener WiFi o datos móviles habilitados\n" +
+                       "• Revisa que no estés en modo avión\n" +
+                       "• Intenta de nuevo cuando tengas conexión estable";
+            }
+        }
+        
+        // Verificar si la causa es UnknownHostException
+        Throwable cause = error.getCause();
+        while (cause != null) {
+            if (cause instanceof java.net.UnknownHostException) {
+                return "📡 Sin conexión a internet\n\n" +
+                       "No se pudo conectar con los servidores de Firebase.\n\n" +
+                       "Por favor:\n\n" +
+                       "• Verifica que tengas conexión a internet activa\n" +
+                       "• Asegúrate de tener WiFi o datos móviles habilitados\n" +
+                       "• Revisa que no estés en modo avión\n" +
+                       "• Intenta de nuevo cuando tengas conexión estable";
+            }
+            cause = cause.getCause();
+        }
+        
+        String errorMsg = error.getMessage();
+        if (errorMsg == null || errorMsg.isEmpty()) {
+            errorMsg = error.getClass().getSimpleName();
+        }
+        
+        String lowerError = errorMsg.toLowerCase();
+        
+        // Errores de Firestore UNAVAILABLE y resolución de hostname
+        if (lowerError.contains("unavailable") || 
+            lowerError.contains("unable to resolve host") ||
+            lowerError.contains("unknownhostexception") ||
+            lowerError.contains("no address associated with hostname") ||
+            lowerError.contains("firestore.googleapis.com") ||
+            lowerError.contains("eai_nodata")) {
+            return "📡 Sin conexión a internet\n\n" +
+                   "No se pudo conectar con los servidores de Firebase.\n\n" +
+                   "Por favor:\n\n" +
+                   "• Verifica que tengas conexión a internet activa\n" +
+                   "• Asegúrate de tener WiFi o datos móviles habilitados\n" +
+                   "• Revisa que no estés en modo avión\n" +
+                   "• Intenta de nuevo cuando tengas conexión estable";
+        }
+        
+        // Errores de red generales
+        if (lowerError.contains("network") || lowerError.contains("timeout") || 
+            lowerError.contains("connection") || lowerError.contains("unreachable") ||
+            lowerError.contains("failed to connect") || lowerError.contains("socket") ||
+            lowerError.contains("connection refused") || lowerError.contains("connection reset")) {
+            return "📡 Error de conexión\n\n" +
+                   "No se pudo conectar con el servidor. Por favor:\n\n" +
+                   "• Verifica tu conexión a internet\n" +
+                   "• Asegúrate de tener WiFi o datos móviles activos\n" +
+                   "• Intenta de nuevo en unos momentos";
+        }
+        
+        // Errores de permisos
+        if (lowerError.contains("permission denied") || lowerError.contains("unauthorized")) {
+            return "🔒 Sin permisos\n\n" +
+                   "No tienes permisos para realizar esta acción.\n\n" +
+                   "Por favor, verifica tu sesión e intenta de nuevo.";
+        }
+        
+        // Mensajes según el contexto
+        String baseMessage;
+        if ("create".equals(context)) {
+            baseMessage = "❌ Error al crear categoría\n\n";
+        } else if ("update".equals(context)) {
+            baseMessage = "❌ Error al actualizar categoría\n\n";
+        } else if ("delete".equals(context)) {
+            baseMessage = "❌ Error al eliminar categoría\n\n";
+        } else {
+            baseMessage = "❌ Error\n\n";
+        }
+        
+        // Si el mensaje es muy técnico, mostrar uno genérico
+        if (errorMsg.length() > 100 || lowerError.contains("exception") || 
+            lowerError.contains("stacktrace") || lowerError.contains("at ")) {
+            return baseMessage + 
+                   "Ocurrió un error inesperado al procesar tu solicitud.\n\n" +
+                   "Por favor, intenta de nuevo. Si el problema persiste, contacta al soporte técnico.";
+        }
+        
+        // Mostrar el mensaje original pero formateado
+        return baseMessage + errorMsg;
     }
 }

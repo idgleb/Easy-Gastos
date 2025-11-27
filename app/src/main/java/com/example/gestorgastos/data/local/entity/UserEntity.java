@@ -35,4 +35,10 @@ public class UserEntity {
     public boolean isActive;
     
     public long updatedAt;
+    
+    @Nullable
+    public String syncState; // "PENDING" | "SYNCED" | null (para usuarios existentes sin estado)
+    
+    @Nullable
+    public Long deletedAt; // Timestamp de eliminación (null = no eliminado)
 }

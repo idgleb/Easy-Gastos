@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.core.content.ContextCompat;
 import com.example.gestorgastos.R;
 import com.example.gestorgastos.databinding.FragmentDashboardBinding;
 import com.example.gestorgastos.data.local.entity.CategoryEntity;
@@ -20,6 +21,7 @@ import com.example.gestorgastos.ui.main.MainViewModel;
 import com.example.gestorgastos.ui.expenses.ExpenseViewModel;
 import com.example.gestorgastos.ui.dialogs.CategorySelectionBottomSheet;
 import com.example.gestorgastos.ui.dialogs.AmountInputBottomSheet;
+import com.example.gestorgastos.ui.dialogs.AuthMessageDialog;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -79,6 +81,42 @@ public class DashboardFragment extends Fragment {
 
         if (binding.btnAddExpense != null) {
             binding.btnAddExpense.setOnClickListener(v -> showCategorySelectionBottomSheet());
+        }
+        
+        // Configurar SwipeRefreshLayout
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            refreshData();
+        });
+        
+        // Configurar colores del indicador de refresh
+        binding.swipeRefreshLayout.setColorSchemeColors(
+            ContextCompat.getColor(requireContext(), R.color.appbar_blue),
+            ContextCompat.getColor(requireContext(), R.color.blue)
+        );
+    }
+    
+    private void refreshData() {
+        if (binding == null) {
+            return;
+        }
+        
+        if (currentUserUid != null) {
+            // Sincronizar datos desde Firestore
+            mainViewModel.syncUserDataIfNeeded();
+            
+            // Recargar datos del dashboard
+            refreshDashboardData();
+            
+            // Ocultar el indicador de refresh después de un breve delay
+            binding.swipeRefreshLayout.postDelayed(() -> {
+                if (binding != null && binding.swipeRefreshLayout != null) {
+                    binding.swipeRefreshLayout.setRefreshing(false);
+                }
+            }, 1500);
+        } else {
+            if (binding.swipeRefreshLayout != null) {
+                binding.swipeRefreshLayout.setRefreshing(false);
+            }
         }
     }
     
@@ -144,7 +182,8 @@ public class DashboardFragment extends Fragment {
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null && !error.isEmpty()) {
                 Log.e(TAG, "Error: " + error);
-                // Aquí podrías mostrar un Snackbar o Toast con el error
+                showErrorDialog(error);
+                viewModel.clearMessages();
             }
         });
         
@@ -174,8 +213,8 @@ public class DashboardFragment extends Fragment {
         });
 
         expenseViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) {
-                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+            if (error != null && !error.isEmpty()) {
+                showErrorDialog(error);
                 expenseViewModel.clearMessages();
             }
         });
@@ -380,6 +419,27 @@ public class DashboardFragment extends Fragment {
             binding.cardEmptyState.setVisibility(View.GONE);
             binding.pieChart.setVisibility(View.VISIBLE);
         }
+    }
+    
+    private void showErrorDialog(String message) {
+        AuthMessageDialog dialog = AuthMessageDialog.newInstance(
+            "¡Ups! 😅",
+            message,
+            AuthMessageDialog.TYPE_ERROR,
+            "Entendido"
+        );
+        dialog.setOnDialogActionListener(new AuthMessageDialog.OnDialogActionListener() {
+            @Override
+            public void onActionClicked() {
+                // No hacer nada, solo cerrar
+            }
+            
+            @Override
+            public void onDialogClosed() {
+                // No hacer nada, solo cerrar
+            }
+        });
+        dialog.show(getParentFragmentManager(), "ErrorDialog");
     }
 
     private void showCategorySelectionBottomSheet() {

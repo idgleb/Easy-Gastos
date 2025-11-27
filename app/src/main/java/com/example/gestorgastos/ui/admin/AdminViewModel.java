@@ -83,14 +83,8 @@ public class AdminViewModel extends AndroidViewModel {
             @Override
             public void onError(Exception error) {
                 isLoading.postValue(false);
-                String errorMsg = error.getMessage();
-                if (errorMsg != null && errorMsg.contains("email-already-in-use")) {
-                    errorMessage.postValue("Error: El email ya está registrado");
-                } else if (errorMsg != null && errorMsg.contains("invalid-email")) {
-                    errorMessage.postValue("Error: Email inválido");
-                } else {
-                    errorMessage.postValue("Error al crear usuario: " + errorMsg);
-                }
+                String friendlyMessage = translateError(error, "create");
+                errorMessage.postValue(friendlyMessage);
             }
         });
     }
@@ -135,14 +129,17 @@ public class AdminViewModel extends AndroidViewModel {
             public void onSuccess(UserEntity result) {
                 Log.d("AdminViewModel", "Usuario actualizado exitosamente");
                 isLoading.postValue(false);
-                successMessage.postValue("Usuario actualizado exitosamente");
+                // Mensaje que indica que los cambios están guardados localmente
+                // La sincronización con Firestore ocurrirá automáticamente en background
+                successMessage.postValue("Usuario actualizado. Los cambios se sincronizarán automáticamente cuando haya conexión.");
             }
             
             @Override
             public void onError(Exception error) {
                 Log.e("AdminViewModel", "Error al actualizar usuario", error);
                 isLoading.postValue(false);
-                errorMessage.postValue("Error al actualizar usuario: " + error.getMessage());
+                String friendlyMessage = translateError(error, "update");
+                errorMessage.postValue(friendlyMessage);
             }
         });
     }
@@ -162,7 +159,8 @@ public class AdminViewModel extends AndroidViewModel {
             @Override
             public void onError(Exception error) {
                 isLoading.postValue(false);
-                errorMessage.postValue("Error al eliminar usuario: " + error.getMessage());
+                String friendlyMessage = translateError(error, "delete");
+                errorMessage.postValue(friendlyMessage);
             }
         });
     }
@@ -178,6 +176,154 @@ public class AdminViewModel extends AndroidViewModel {
         if (adminRepository instanceof AdminRepositoryImpl) {
             ((AdminRepositoryImpl) adminRepository).loadUsersFromFirestore();
         }
+    }
+    
+    /**
+     * Traduce los errores técnicos a mensajes amigables para el usuario
+     */
+    private String translateError(Exception error, String context) {
+        if (error == null) {
+            return "Ocurrió un error inesperado. Por favor, intenta de nuevo.";
+        }
+        
+        // Verificar si es un error de Firestore UNAVAILABLE
+        if (error instanceof com.google.firebase.firestore.FirebaseFirestoreException) {
+            com.google.firebase.firestore.FirebaseFirestoreException firestoreError = 
+                (com.google.firebase.firestore.FirebaseFirestoreException) error;
+            if (firestoreError.getCode() == com.google.firebase.firestore.FirebaseFirestoreException.Code.UNAVAILABLE) {
+                return "📡 Sin conexión a internet\n\n" +
+                       "No se pudo conectar con los servidores de Firebase.\n\n" +
+                       "Por favor:\n\n" +
+                       "• Verifica que tengas conexión a internet activa\n" +
+                       "• Asegúrate de tener WiFi o datos móviles habilitados\n" +
+                       "• Revisa que no estés en modo avión\n" +
+                       "• Intenta de nuevo cuando tengas conexión estable";
+            }
+        }
+        
+        // Verificar si la causa es UnknownHostException
+        Throwable cause = error.getCause();
+        while (cause != null) {
+            if (cause instanceof java.net.UnknownHostException) {
+                return "📡 Sin conexión a internet\n\n" +
+                       "No se pudo conectar con los servidores de Firebase.\n\n" +
+                       "Por favor:\n\n" +
+                       "• Verifica que tengas conexión a internet activa\n" +
+                       "• Asegúrate de tener WiFi o datos móviles habilitados\n" +
+                       "• Revisa que no estés en modo avión\n" +
+                       "• Intenta de nuevo cuando tengas conexión estable";
+            }
+            cause = cause.getCause();
+        }
+        
+        String errorMsg = error.getMessage();
+        if (errorMsg == null || errorMsg.isEmpty()) {
+            errorMsg = error.getClass().getSimpleName();
+        }
+        
+        String lowerError = errorMsg.toLowerCase();
+        
+        // Errores de Firestore UNAVAILABLE y resolución de hostname
+        if (lowerError.contains("unavailable") || 
+            lowerError.contains("unable to resolve host") ||
+            lowerError.contains("unknownhostexception") ||
+            lowerError.contains("no address associated with hostname") ||
+            lowerError.contains("firestore.googleapis.com") ||
+            lowerError.contains("eai_nodata")) {
+            return "📡 Sin conexión a internet\n\n" +
+                   "No se pudo conectar con los servidores de Firebase.\n\n" +
+                   "Por favor:\n\n" +
+                   "• Verifica que tengas conexión a internet activa\n" +
+                   "• Asegúrate de tener WiFi o datos móviles habilitados\n" +
+                   "• Revisa que no estés en modo avión\n" +
+                   "• Intenta de nuevo cuando tengas conexión estable";
+        }
+        
+        // Errores de red generales
+        if (lowerError.contains("network") || lowerError.contains("timeout") || 
+            lowerError.contains("connection") || lowerError.contains("unreachable") ||
+            lowerError.contains("failed to connect") || lowerError.contains("socket") ||
+            lowerError.contains("connection refused") || lowerError.contains("connection reset")) {
+            return "📡 Error de conexión\n\n" +
+                   "No se pudo conectar con el servidor. Por favor:\n\n" +
+                   "• Verifica tu conexión a internet\n" +
+                   "• Asegúrate de tener WiFi o datos móviles activos\n" +
+                   "• Intenta de nuevo en unos momentos";
+        }
+        
+        // Errores de email duplicado
+        if (lowerError.contains("email-already-in-use") || lowerError.contains("already in use")) {
+            return "📧 Email ya registrado\n\n" +
+                   "Este correo electrónico ya está siendo usado por otro usuario.\n\n" +
+                   "Por favor, utiliza un email diferente.";
+        }
+        
+        // Errores de email inválido
+        if (lowerError.contains("invalid-email") || lowerError.contains("invalid email") ||
+            lowerError.contains("badly formatted")) {
+            return "📧 Email inválido\n\n" +
+                   "El formato del correo electrónico no es válido.\n\n" +
+                   "Por favor, verifica que el email tenga el formato correcto:\n" +
+                   "ejemplo@dominio.com";
+        }
+        
+        // Errores de contraseña débil
+        if (lowerError.contains("weak password") || lowerError.contains("at least 6")) {
+            return "🔐 Contraseña débil\n\n" +
+                   "La contraseña debe tener al menos 6 caracteres.\n\n" +
+                   "Te recomendamos usar una combinación de:\n" +
+                   "• Letras mayúsculas y minúsculas\n" +
+                   "• Números\n" +
+                   "• Símbolos especiales";
+        }
+        
+        // Errores de autenticación/autorización
+        if (lowerError.contains("permission denied") || lowerError.contains("unauthorized") ||
+            lowerError.contains("not authorized") || lowerError.contains("403")) {
+            return "🔒 Sin permisos\n\n" +
+                   "No tienes permisos para realizar esta acción.\n\n" +
+                   "Por favor, verifica que tengas el rol de administrador.";
+        }
+        
+        // Errores de servidor
+        if (lowerError.contains("internal error") || lowerError.contains("500") ||
+            lowerError.contains("server error")) {
+            return "⚠️ Error del servidor\n\n" +
+                   "Ocurrió un error en el servidor. Por favor:\n\n" +
+                   "• Intenta de nuevo en unos momentos\n" +
+                   "• Si el problema persiste, contacta al soporte";
+        }
+        
+        // Errores de token/autenticación
+        if (lowerError.contains("token") || lowerError.contains("authentication") ||
+            lowerError.contains("401")) {
+            return "🔑 Error de autenticación\n\n" +
+                   "Tu sesión ha expirado o no tienes permisos.\n\n" +
+                   "Por favor, cierra sesión e inicia sesión nuevamente.";
+        }
+        
+        // Mensajes según el contexto
+        String baseMessage;
+        if ("create".equals(context)) {
+            baseMessage = "❌ Error al crear usuario\n\n";
+        } else if ("update".equals(context)) {
+            baseMessage = "❌ Error al actualizar usuario\n\n";
+        } else if ("delete".equals(context)) {
+            baseMessage = "❌ Error al eliminar usuario\n\n";
+        } else {
+            baseMessage = "❌ Error\n\n";
+        }
+        
+        // Si el mensaje es muy técnico, mostrar uno genérico
+        if (errorMsg.length() > 100 || lowerError.contains("exception") || 
+            lowerError.contains("stacktrace") || lowerError.contains("at ")) {
+            return baseMessage + 
+                   "Ocurrió un error inesperado al procesar tu solicitud.\n\n" +
+                   "Por favor, intenta de nuevo. Si el problema persiste, contacta al soporte técnico.";
+        }
+        
+        // Mostrar el mensaje original pero formateado
+        return baseMessage + errorMsg;
     }
 }
 

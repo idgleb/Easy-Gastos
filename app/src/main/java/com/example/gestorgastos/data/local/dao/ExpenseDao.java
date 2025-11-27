@@ -44,6 +44,9 @@ public interface ExpenseDao {
     @Query("UPDATE expenses SET categoryRemoteId = :newRemoteId, syncState = 'PENDING' WHERE categoryRemoteId = :oldLocalRef")
     void migrateCategoryRemoteId(String oldLocalRef, String newRemoteId);
     
+    @Query("SELECT * FROM expenses WHERE userUid = :userUid AND categoryRemoteId = :categoryRemoteId AND monto = :monto AND fechaEpochMillis = :fechaEpochMillis AND deletedAt IS NULL LIMIT 1")
+    ExpenseEntity findExpenseByAttributes(String userUid, String categoryRemoteId, double monto, long fechaEpochMillis);
+    
     // Consultas para dashboard - temporalmente comentadas
     // @Query("SELECT categoryRemoteId, SUM(monto) AS total FROM expenses WHERE userUid = :userUid AND fechaEpochMillis >= :monthStart AND fechaEpochMillis <= :monthEnd AND deletedAt IS NULL GROUP BY categoryRemoteId ORDER BY total DESC")
     // LiveData<List<CategorySum>> sumByCategoryForMonth(String userUid, long monthStart, long monthEnd);

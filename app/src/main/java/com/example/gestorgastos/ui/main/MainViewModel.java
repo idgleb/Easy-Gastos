@@ -43,6 +43,10 @@ public class MainViewModel extends AndroidViewModel {
         authRepository.syncUserDataIfNeeded();
     }
     
+    public LiveData<String> getConnectionError() {
+        return authRepository.getConnectionError();
+    }
+    
     /**
      * Inicia el proceso de actualización de plan a premium.
      * La lógica de negocio está aquí, no en la Activity (Clean Architecture).

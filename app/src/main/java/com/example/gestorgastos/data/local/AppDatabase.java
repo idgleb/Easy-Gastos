@@ -22,7 +22,7 @@ import com.example.gestorgastos.data.local.entity.UserEntity;
         CategoryEntity.class,
         ExpenseEntity.class
     },
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -44,7 +44,7 @@ public abstract class AppDatabase extends RoomDatabase {
                         AppDatabase.class,
                         "gestor_gastos_database"
                     )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build();
                 }
             }
@@ -57,6 +57,15 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE users ADD COLUMN planExpiresAt INTEGER");
+        }
+    };
+    
+    // Migración de versión 2 a 3: agregar campos syncState y deletedAt
+    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE users ADD COLUMN syncState TEXT");
+            database.execSQL("ALTER TABLE users ADD COLUMN deletedAt INTEGER");
         }
     };
 }

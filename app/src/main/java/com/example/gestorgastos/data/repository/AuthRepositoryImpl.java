@@ -14,6 +14,7 @@ import com.example.gestorgastos.data.remote.FirestoreDataSource;
 import com.example.gestorgastos.domain.repository.AuthRepository;
 import com.example.gestorgastos.util.DateTimeUtil;
 import com.example.gestorgastos.util.SyncPrefs;
+import com.example.gestorgastos.util.ConnectionErrorNotifier;
 import com.example.gestorgastos.data.repository.CategoryRepository;
 import com.example.gestorgastos.data.repository.CategoryRepositoryImpl;
 import com.example.gestorgastos.data.repository.ExpenseRepositoryImpl;
@@ -56,6 +57,10 @@ public class AuthRepositoryImpl implements AuthRepository {
     }
     
     @Override
+    public LiveData<String> getConnectionError() {
+        return ConnectionErrorNotifier.getInstance().getConnectionError();
+    }
+    
     public LiveData<UserEntity> getCurrentUser() {
         // Usar instancia persistente de LiveData para que el listener siempre actualice el mismo objeto
         if (userLiveData == null) {
@@ -93,7 +98,19 @@ public class AuthRepositoryImpl implements AuthRepository {
                             existingUser.planId = "free";
                             existingUser.planExpiresAt = null;
                             existingUser.updatedAt = currentTime;
-                            userDao.updateUser(existingUser);
+                            // Usar query explícita para asegurar que Room notifique cambios
+                            userDao.updateUserFields(
+                                existingUser.uid,
+                                existingUser.name,
+                                existingUser.email,
+                                existingUser.role,
+                                existingUser.planId,
+                                existingUser.planExpiresAt,
+                                existingUser.zonaHoraria,
+                                existingUser.isActive,
+                                existingUser.syncState,
+                                existingUser.updatedAt
+                            );
                             syncUserToFirestore(existingUser);
                             Log.d(TAG, "Plan expirado para usuario: " + existingUser.name);
                         }
@@ -173,13 +190,33 @@ public class AuthRepositoryImpl implements AuthRepository {
                         removeUserListener();
                         return;
                     }
+                    // Notificar errores de conexión UNAVAILABLE
+                    if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                        ConnectionErrorNotifier.getInstance().notifyIfConnectionError(error);
+                        Log.w(TAG, "⚠️ Error de conexión UNAVAILABLE detectado en listener de Firestore");
+                        return;
+                    }
                 }
+                // Verificar si la causa es UnknownHostException
+                ConnectionErrorNotifier.getInstance().notifyIfConnectionError(error);
                 Log.e(TAG, "❌ Error en listener de Firestore", error);
                 return;
             }
             
+            // Verificar si el snapshot viene de caché o del servidor
+            // Solo limpiar el error si viene del servidor (no de caché)
             if (snapshot != null && snapshot.exists()) {
-                Log.d(TAG, "📥 Snapshot recibido de Firestore para uid: " + uid);
+                boolean isFromCache = snapshot.getMetadata().isFromCache();
+                
+                Log.d(TAG, "📥 Snapshot recibido de Firestore para uid: " + uid + " (desde: " + (isFromCache ? "CACHE" : "SERVER") + ")");
+                
+                // Solo limpiar error de conexión si el snapshot viene del servidor (no de caché)
+                if (!isFromCache) {
+                    Log.d(TAG, "✅ Snapshot desde servidor - limpiando error de conexión");
+                    ConnectionErrorNotifier.getInstance().clearError();
+                } else {
+                    Log.d(TAG, "ℹ️ Snapshot desde caché - NO se limpia error de conexión (puede no haber conexión real)");
+                }
                 executor.execute(() -> {
                     try {
                         // Obtener datos de Firestore
@@ -240,13 +277,30 @@ public class AuthRepositoryImpl implements AuthRepository {
                             
                             if (needsUpdate) {
                                 existingUser.updatedAt = DateTimeUtil.getCurrentEpochMillis();
-                                userDao.updateUser(existingUser);
+                                // Usar query explícita para asegurar que Room notifique cambios
+                                userDao.updateUserFields(
+                                    existingUser.uid,
+                                    existingUser.name,
+                                    existingUser.email,
+                                    existingUser.role,
+                                    existingUser.planId,
+                                    existingUser.planExpiresAt,
+                                    existingUser.zonaHoraria,
+                                    existingUser.isActive,
+                                    existingUser.syncState,
+                                    existingUser.updatedAt
+                                );
                                 Log.d(TAG, "✅ Usuario actualizado desde Firestore: " + existingUser.name + " (planId: " + existingUser.planId + ")");
-                                Log.d(TAG, "📤 Posteando usuario actualizado al LiveData");
-                                userLiveData.postValue(existingUser);
-                                Log.d(TAG, "✅ Usuario posteado al LiveData exitosamente");
-                            } else {
-                                Log.d(TAG, "ℹ️ No hay cambios en el usuario, no se actualiza");
+                            }
+                            
+                            // SIEMPRE postear al LiveData, incluso si no hubo cambios en Room
+                            // Esto asegura que los observadores (como AccountBottomSheet) reciban el valor actualizado
+                            Log.d(TAG, "📤 Posteando usuario al LiveData (planId: " + existingUser.planId + ")");
+                            userLiveData.postValue(existingUser);
+                            Log.d(TAG, "✅ Usuario posteado al LiveData exitosamente");
+                            
+                            if (!needsUpdate) {
+                                Log.d(TAG, "ℹ️ No hubo cambios en Room, pero LiveData fue actualizado");
                             }
                         }
                     } catch (Exception e) {

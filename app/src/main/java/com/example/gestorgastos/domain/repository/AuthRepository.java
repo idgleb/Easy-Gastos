@@ -28,6 +28,12 @@ public interface AuthRepository {
      */
     void syncUserDataIfNeeded();
     
+    /**
+     * LiveData para observar errores de conexión persistentes (UNAVAILABLE, UnknownHostException, etc.)
+     * que ocurren en listeners de Firestore o sincronizaciones en segundo plano.
+     */
+    LiveData<String> getConnectionError();
+    
     interface AuthCallback {
         void onSuccess(UserEntity user);
         void onError(Exception error);

@@ -15,10 +15,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.core.content.ContextCompat;
 import com.example.gestorgastos.databinding.FragmentAdminBinding;
 import com.example.gestorgastos.R;
 import com.example.gestorgastos.data.local.entity.UserEntity;
 import com.example.gestorgastos.ui.dialogs.EditUserDialog;
+import com.example.gestorgastos.ui.dialogs.AuthMessageDialog;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,8 +79,35 @@ public class AdminFragment extends Fragment {
             showAddUserDialog();
         });
         
+        // Configurar SwipeRefreshLayout
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            refreshData();
+        });
+        
+        // Configurar colores del indicador de refresh
+        binding.swipeRefreshLayout.setColorSchemeColors(
+            ContextCompat.getColor(requireContext(), R.color.appbar_blue),
+            ContextCompat.getColor(requireContext(), R.color.blue)
+        );
+        
         // Iniciar animación de pulsación del icono
         startFabPulseAnimation();
+    }
+    
+    private void refreshData() {
+        if (binding == null) {
+            return;
+        }
+        
+        // Recargar lista de usuarios
+        viewModel.refreshUsers();
+        
+        // Ocultar el indicador de refresh después de un breve delay
+        binding.swipeRefreshLayout.postDelayed(() -> {
+            if (binding != null && binding.swipeRefreshLayout != null) {
+                binding.swipeRefreshLayout.setRefreshing(false);
+            }
+        }, 1500);
     }
     
     private void observeViewModel() {
@@ -106,8 +135,8 @@ public class AdminFragment extends Fragment {
         
         // Observar mensajes de error
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMessage -> {
-            if (errorMessage != null) {
-                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                showErrorDialog(errorMessage);
                 viewModel.clearMessages();
             }
         });
@@ -220,6 +249,27 @@ public class AdminFragment extends Fragment {
             })
             .setNegativeButton("Cancelar", null)
             .show();
+    }
+    
+    private void showErrorDialog(String message) {
+        AuthMessageDialog dialog = AuthMessageDialog.newInstance(
+            "¡Ups! 😅",
+            message,
+            AuthMessageDialog.TYPE_ERROR,
+            "Entendido"
+        );
+        dialog.setOnDialogActionListener(new AuthMessageDialog.OnDialogActionListener() {
+            @Override
+            public void onActionClicked() {
+                // No hacer nada, solo cerrar
+            }
+            
+            @Override
+            public void onDialogClosed() {
+                // No hacer nada, solo cerrar
+            }
+        });
+        dialog.show(getParentFragmentManager(), "ErrorDialog");
     }
     
     @Override
