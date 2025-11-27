@@ -133,9 +133,19 @@ public class DashboardFragment extends Fragment {
         pieChart.setCenterText("Gastos");
         pieChart.setCenterTextSize(18f);
         
-        // Configurar color del texto central según el tema
+        // Configurar colores según el tema
         int textColor = ContextCompat.getColor(requireContext(), R.color.gris_icono);
         pieChart.setCenterTextColor(textColor);
+        
+        // Configurar color del agujero central según el tema
+        int holeColor = ContextCompat.getColor(requireContext(), R.color.bottom_nav_surface);
+        pieChart.setHoleColor(holeColor);
+        
+        // Configurar color transparente alrededor del agujero
+        pieChart.setTransparentCircleRadius(61f);
+        int transparentColor = ContextCompat.getColor(requireContext(), R.color.bottom_nav_surface);
+        pieChart.setTransparentCircleColor(transparentColor);
+        pieChart.setTransparentCircleAlpha(0);
         
         // Ocultar leyenda
         pieChart.getLegend().setEnabled(false);
