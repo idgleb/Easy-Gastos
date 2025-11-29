@@ -33,5 +33,8 @@
     <color name="bottom_nav_on_primary">#000000</color>
     <color name="bottom_nav_outline">#424242</color>
     <color name="bottom_nav_elevation">#000000</color>
+    
+    <!-- Color de fondo para tarjetas en modo oscuro -->
+    <color name="card_background">#FF2C2C2C</color>
 </resources>
 

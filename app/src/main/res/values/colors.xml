@@ -59,4 +59,7 @@
     <color name="dialog_button_glass_bg">#80000000</color>
     <color name="dialog_button_glass_stroke">#B3FFFFFF</color>
     
+    <!-- Color de fondo para tarjetas (blanco puro sin tinte) -->
+    <color name="card_background">#FFFFFFFF</color>
+    
 </resources>
