@@ -112,4 +112,22 @@
     <string name="settings_theme_system">Usar configuración del sistema</string>
     <string name="settings_theme_info">El tema se aplicará inmediatamente al seleccionar una opción</string>
     <string name="settings_theme_icon_desc">Icono de tema</string>
+    
+    <!-- About -->
+    <string name="about_title">Acerca de</string>
+    <string name="about_section_app">Información de la App</string>
+    <string name="about_section_developer">Desarrollado por</string>
+    <string name="about_section_links">Enlaces</string>
+    <string name="about_version_format">Versión %1$s</string>
+    <string name="about_description">Una aplicación intuitiva para gestionar tus gastos de manera eficiente. Registra, organiza y analiza tus finanzas personales con facilidad, incluso sin conexión a internet.</string>
+    <string name="about_developer_name">Desarrollador</string>
+    <string name="about_developer_description">Desarrollado con pasión para ayudarte a mantener un mejor control de tus finanzas personales.</string>
+    <string name="about_link_github">GitHub</string>
+    <string name="about_link_terms">Términos de Servicio</string>
+    <string name="about_link_privacy">Política de Privacidad</string>
+    <string name="about_button_share">Compartir App</string>
+    <string name="about_share_title">Compartir aplicación</string>
+    <string name="about_share_text">¡Echa un vistazo a %1$s! Una aplicación genial para gestionar tus gastos. %2$s</string>
+    <string name="about_error_open_url">No se pudo abrir el enlace</string>
+    <string name="about_error_share">No se pudo compartir la aplicación</string>
 </resources>

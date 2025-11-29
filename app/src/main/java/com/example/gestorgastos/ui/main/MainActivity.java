@@ -430,8 +430,10 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
     
     @Override
     public void onAboutClicked() {
-        // TODO: Implementar navegación a acerca de
-        android.widget.Toast.makeText(this, getString(R.string.account_action_about), android.widget.Toast.LENGTH_SHORT).show();
+        // Navegar a la pantalla de Acerca de
+        com.example.gestorgastos.ui.about.AboutFragment aboutFragment = 
+            new com.example.gestorgastos.ui.about.AboutFragment();
+        loadFragmentWithSmartAnimation(aboutFragment, -1); // -1 para indicar que es un fragmento especial
     }
     
     @Override
