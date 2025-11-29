@@ -14,8 +14,8 @@
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
         app:cardBackgroundColor="@color/card_background"
-        app:strokeColor="@color/gris_checkbox"
-        app:strokeWidth="2dp">
+        app:strokeColor="@color/gris"
+        app:strokeWidth="3dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -112,8 +112,8 @@
                 app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 app:cardBackgroundColor="@color/card_background"
-                app:strokeColor="@color/gris_checkbox"
-                app:strokeWidth="2dp">
+                app:strokeColor="@color/gris"
+                app:strokeWidth="3dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -177,8 +177,8 @@
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="@color/card_background"
-            app:strokeColor="@color/gris_checkbox"
-            app:strokeWidth="2dp">
+            app:strokeColor="@color/gris"
+            app:strokeWidth="3dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -243,8 +243,8 @@
             android:layout_marginHorizontal="6dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="@color/card_background"
-            app:strokeColor="@color/gris_checkbox"
-            app:strokeWidth="2dp">
+            app:strokeColor="@color/gris"
+            app:strokeWidth="3dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -411,7 +411,7 @@
             android:layout_marginHorizontal="6dp"
             app:cardElevation="8dp"
             app:cardBackgroundColor="@color/card_background"
-            app:strokeColor="@color/gris_checkbox"
+            app:strokeColor="@color/gris"
             app:strokeWidth="1dp"
             android:visibility="gone">
 
