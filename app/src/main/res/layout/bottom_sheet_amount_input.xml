@@ -26,7 +26,7 @@
             android:layout_marginBottom="18dp">
 
             <!-- Category display con Material 3 -->
-            <com.google.android.material.card.MaterialCardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/cardSelectedCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -34,8 +34,9 @@
                 app:cardCornerRadius="50dp"
                 app:cardElevation="2dp"
                 android:layout_margin="4dp"
-                app:cardBackgroundColor="@android:color/white"
-                app:strokeWidth="1dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:strokeColor="#CCCCCC"
+                app:strokeWidth="2dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackgroundBorderless">
@@ -65,10 +66,10 @@
 
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+            </androidx.cardview.widget.CardView>
 
             <!-- Date display con Material 3 -->
-            <com.google.android.material.card.MaterialCardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/cardSelectedDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -76,8 +77,9 @@
                 app:cardCornerRadius="50dp"
                 app:cardElevation="2dp"
                 android:layout_margin="4dp"
-                app:cardBackgroundColor="@android:color/white"
-                app:strokeWidth="1dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:strokeColor="#CCCCCC"
+                app:strokeWidth="2dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackgroundBorderless">
@@ -107,7 +109,7 @@
 
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+            </androidx.cardview.widget.CardView>
 
 
 
@@ -131,15 +133,17 @@
         </LinearLayout>
 
         <!-- Display del monto con Material 3 -->
-        <com.google.android.material.card.MaterialCardView
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
+            android:layout_marginHorizontal="8dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
             android:layout_margin="4dp"
             app:cardBackgroundColor="@color/gris_light"
-            app:strokeWidth="0dp">
+            app:strokeColor="#CCCCCC"
+            app:strokeWidth="2dp">
 
             <TextView
                 android:id="@+id/tvAmountDisplay"
@@ -147,12 +151,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/text_amount_placeholder"
                 android:textAppearance="@style/TextAppearance.Material3.DisplayMedium"
-                android:textColor="@color/gris_icono"
+                android:textColor="?attr/colorOnSurface"
                 android:gravity="center"
                 android:padding="18dp"
                 android:fontFamily="monospace" />
 
-        </com.google.android.material.card.MaterialCardView>
+        </androidx.cardview.widget.CardView>
 
         <!-- Teclado numérico con Material 3 -->
         <GridLayout
@@ -178,7 +182,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn2"
@@ -192,7 +196,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn3"
@@ -206,7 +210,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <!-- Segunda fila: 4, 5, 6 -->
             <com.google.android.material.button.MaterialButton
@@ -221,7 +225,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn5"
@@ -235,7 +239,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn6"
@@ -249,7 +253,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <!-- Tercera fila: 7, 8, 9 -->
             <com.google.android.material.button.MaterialButton
@@ -264,7 +268,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn8"
@@ -278,7 +282,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn9"
@@ -292,7 +296,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <!-- Cuarta fila: ., 0, ← -->
             <com.google.android.material.button.MaterialButton
@@ -308,7 +312,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn0"
@@ -322,7 +326,7 @@
                 android:textColor="?attr/colorOnSurface"
                 app:cornerRadius="16dp"
                 app:strokeWidth="1dp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/card_background" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnBackspace"
