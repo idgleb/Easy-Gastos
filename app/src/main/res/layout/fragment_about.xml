@@ -182,11 +182,34 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:gravity="center_horizontal"
                     android:padding="16dp">
+
+                    <!-- Foto del desarrollador -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="170dp"
+                        android:layout_height="260dp"
+                        android:layout_marginBottom="12dp"
+                        app:cardCornerRadius="28dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:strokeColor="#CCCCCC"
+                        app:strokeWidth="2dp">
+
+                        <ImageView
+                            android:id="@+id/imgDeveloperPhoto"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/developer_gleb"
+                            android:contentDescription="@string/about_developer_name"
+                            android:scaleType="centerCrop" />
+
+                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:text="@string/about_developer_name"
                         android:textColor="?attr/colorOnSurface"
                         android:textSize="16sp"
@@ -196,6 +219,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:text="@string/about_developer_description"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="14sp"
@@ -269,6 +293,55 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/about_link_github"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp" />
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_chevron_right"
+                                android:tint="?attr/colorOnSurfaceVariant"
+                                android:contentDescription="Abrir" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- WhatsApp -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardWhatsApp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                        app:strokeColor="#CCCCCC"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginEnd="12dp"
+                                android:src="@drawable/ic_info"
+                                android:tint="?attr/colorPrimary"
+                                android:contentDescription="WhatsApp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/about_link_whatsapp"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="15sp" />
 

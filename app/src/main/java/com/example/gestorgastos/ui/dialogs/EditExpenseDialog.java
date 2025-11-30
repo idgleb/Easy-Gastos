@@ -171,18 +171,33 @@ public class EditExpenseDialog extends DialogFragment {
     }
     
     private void populateFields() {
-        if (expense != null) {
+        if (expense != null && categories != null) {
             // Encontrar la categoría actual
-            for (CategoryEntity category : categories) {
-                if (String.valueOf(category.idLocal).equals(expense.categoryRemoteId) || 
-                    ("local_" + category.idLocal).equals(expense.categoryRemoteId)) {
-                    selectedCategory = category;
-                    break;
+            if (expense.categoryRemoteId != null && !expense.categoryRemoteId.isEmpty()) {
+                for (CategoryEntity category : categories) {
+                    // Buscar por remoteId (si la categoría tiene remoteId y coincide)
+                    if (category.remoteId != null && category.remoteId.equals(expense.categoryRemoteId)) {
+                        selectedCategory = category;
+                        break;
+                    }
+                    // Buscar por formato "local_" + idLocal
+                    if (("local_" + category.idLocal).equals(expense.categoryRemoteId)) {
+                        selectedCategory = category;
+                        break;
+                    }
+                    // Buscar por idLocal como string (compatibilidad)
+                    if (String.valueOf(category.idLocal).equals(expense.categoryRemoteId)) {
+                        selectedCategory = category;
+                        break;
+                    }
                 }
             }
             
             if (selectedCategory != null) {
                 etCategory.setText(selectedCategory.name);
+            } else if (expense.categoryRemoteId != null && !expense.categoryRemoteId.isEmpty()) {
+                // Si no se encontró la categoría pero hay un categoryRemoteId, mostrar un mensaje
+                etCategory.setText("Categoría no encontrada");
             }
             
             // Formatear el monto

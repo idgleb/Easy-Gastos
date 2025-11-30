@@ -100,6 +100,9 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         
         // Configurar comportamiento del BottomNavigationView
         setupBottomNavigationBehavior();
+        
+        // Verificar actualizaciones de la app
+        checkForAppUpdate();
     }
 
     @Override
@@ -462,6 +465,34 @@ public class MainActivity extends AppCompatActivity implements AccountBottomShee
         loadFragmentWithSmartAnimation(adminFragment, -1); // -1 para indicar que es un fragmento especial
     }
     
+    
+    /**
+     * Verifica si hay actualizaciones disponibles de la aplicación.
+     * Muestra un diálogo si hay una nueva versión disponible.
+     */
+    private void checkForAppUpdate() {
+        com.example.gestorgastos.util.UpdateChecker.checkForUpdate(this, new com.example.gestorgastos.util.UpdateChecker.UpdateCheckListener() {
+            @Override
+            public void onUpdateAvailable(int currentVersion, int latestVersion, String versionName, String message) {
+                // Mostrar diálogo de actualización (opcional, no obligatorio)
+                com.example.gestorgastos.ui.dialogs.UpdateDialog dialog = 
+                    com.example.gestorgastos.ui.dialogs.UpdateDialog.newInstance(versionName, message, false);
+                dialog.show(getSupportFragmentManager(), "UpdateDialog");
+            }
+            
+            @Override
+            public void onNoUpdateAvailable() {
+                // No hacer nada, la app está actualizada
+                android.util.Log.d("MainActivity", "App está actualizada");
+            }
+            
+            @Override
+            public void onError(String error) {
+                // Opcional: loggear el error, no mostrar nada al usuario para no interrumpir
+                android.util.Log.e("MainActivity", "Error al verificar actualización: " + error);
+            }
+        });
+    }
     
     // Método para obtener el UID del usuario actual
     public String getCurrentUserUid() {

@@ -158,19 +158,22 @@ public class AuthMessageDialog extends DialogFragment {
         Context context = getContext();
         if (context == null) return;
         
+        // Usar color adaptativo para el icono (colorOnSurface para mejor contraste)
+        int iconTextColor = context.getColor(R.color.gris_icono);
+        
         if (TYPE_SUCCESS.equals(type)) {
             ivMessageIcon.setText("✅");
-            ivMessageIcon.setTextColor(context.getColor(R.color.white));
-            btnAction.setBackgroundColor(context.getColor(R.color.dialog_button_glass_bg));
+            ivMessageIcon.setTextColor(iconTextColor);
+            // El botón ya usa ?attr/colorPrimary en el layout, no necesitamos cambiarlo aquí
         } else if (TYPE_ERROR.equals(type)) {
             ivMessageIcon.setText("❌");
-            ivMessageIcon.setTextColor(context.getColor(R.color.white));
-            btnAction.setBackgroundColor(context.getColor(R.color.dialog_button_glass_bg));
+            ivMessageIcon.setTextColor(iconTextColor);
+            // El botón ya usa ?attr/colorPrimary en el layout, no necesitamos cambiarlo aquí
         } else {
             // TYPE_INFO por defecto
             ivMessageIcon.setText("ℹ️");
-            ivMessageIcon.setTextColor(context.getColor(R.color.white));
-            btnAction.setBackgroundColor(context.getColor(R.color.dialog_button_glass_bg));
+            ivMessageIcon.setTextColor(iconTextColor);
+            // El botón ya usa ?attr/colorPrimary en el layout, no necesitamos cambiarlo aquí
         }
     }
     

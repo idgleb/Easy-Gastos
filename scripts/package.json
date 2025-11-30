@@ -1,0 +1,12 @@
+{
+  "name": "gestor-gastos-scripts",
+  "version": "1.0.0",
+  "description": "Scripts de utilidad para Gestor de Gastos",
+  "scripts": {
+    "update-version": "node update-version.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.6.0"
+  }
+}
+

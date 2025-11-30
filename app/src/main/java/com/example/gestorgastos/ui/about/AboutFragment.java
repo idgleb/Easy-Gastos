@@ -28,6 +28,9 @@ public class AboutFragment extends Fragment {
     // URL del repositorio de GitHub
     private static final String GITHUB_URL = "https://github.com/idgleb/Easy-Gastos";
     
+    // Número de WhatsApp
+    private static final String WHATSAPP_NUMBER = "+541166927347";
+    
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,6 +57,9 @@ public class AboutFragment extends Fragment {
         // Configurar enlace a GitHub
         binding.cardGitHub.setOnClickListener(v -> openUrl(GITHUB_URL));
         
+        // Configurar enlace a WhatsApp
+        binding.cardWhatsApp.setOnClickListener(v -> openWhatsApp());
+        
         // Configurar botón de compartir app
         binding.btnShareApp.setOnClickListener(v -> shareApp());
     }
@@ -72,6 +78,34 @@ public class AboutFragment extends Fragment {
     private void openUrl(String url) {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), 
+                getString(R.string.about_error_open_url), 
+                Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    private void openWhatsApp() {
+        try {
+            // Formatear el número (eliminar espacios y caracteres especiales)
+            String number = WHATSAPP_NUMBER.replaceAll("[^0-9+]", "");
+            
+            // Intent para abrir WhatsApp con el número
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://wa.me/" + number));
+            intent.setPackage("com.whatsapp");
+            
+            // Si WhatsApp no está instalado, intentar con WhatsApp Business
+            if (intent.resolveActivity(requireContext().getPackageManager()) == null) {
+                intent.setPackage("com.whatsapp.w4b");
+            }
+            
+            // Si tampoco está instalado, abrir en el navegador
+            if (intent.resolveActivity(requireContext().getPackageManager()) == null) {
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/" + number));
+            }
+            
             startActivity(intent);
         } catch (Exception e) {
             Toast.makeText(requireContext(), 

@@ -372,53 +372,96 @@ public class DashboardFragment extends Fragment {
         // Generar hash único basado en el nombre de la categoría
         int hash = Math.abs(categoryName.hashCode());
         
-        // Usar diferentes partes del hash para generar colores completamente diferentes
+        // Paleta base de 20 colores muy contrastantes y vibrantes
+        // Estos colores están distribuidos uniformemente en el círculo cromático
+        int[] baseColors = {
+            0xFFE91E63, // Rosa vibrante
+            0xFF9C27B0, // Púrpura
+            0xFF673AB7, // Púrpura profundo
+            0xFF3F51B5, // Índigo
+            0xFF2196F3, // Azul
+            0xFF03A9F4, // Azul claro
+            0xFF00BCD4, // Cian
+            0xFF009688, // Verde azulado
+            0xFF4CAF50, // Verde
+            0xFF8BC34A, // Verde lima
+            0xFFCDDC39, // Lima
+            0xFFFFEB3B, // Amarillo
+            0xFFFFC107, // Ámbar
+            0xFFFF9800, // Naranja
+            0xFFFF5722, // Naranja rojizo
+            0xFF795548, // Marrón
+            0xFF607D8B, // Azul gris
+            0xFF9E9E9E, // Gris
+            0xFFF44336, // Rojo
+            0xFFE91E63  // Rosa (duplicado para completar 20)
+        };
+        
+        // Seleccionar color base de la paleta
+        int baseColorIndex = hash % baseColors.length;
+        int baseColor = baseColors[baseColorIndex];
+        
+        // Extraer componentes RGB del color base
+        int red = (baseColor >> 16) & 0xFF;
+        int green = (baseColor >> 8) & 0xFF;
+        int blue = baseColor & 0xFF;
+        
+        // Calcular "nivel de variación" basado en el hash
+        // Esto permite generar variaciones del color base para categorías adicionales
+        int variationLevel = (hash >>> 16) % 3; // 0, 1, o 2
+        
+        // Aplicar variaciones según el nivel
+        // Nivel 0: color base puro (sin variación)
+        // Nivel 1: variación ligera (±15)
+        // Nivel 2: variación moderada (±30)
+        int variation = variationLevel * 15;
+        
+        // Usar diferentes partes del hash para variar cada canal RGB
         int hash1 = hash;
         int hash2 = hash >>> 8;
         int hash3 = hash >>> 16;
         
-        // Sistema de colores completamente contrastantes
-        // Dividir el hash en 3 partes para RGB
-        int red = (hash1 % 256);
-        int green = (hash2 % 256);
-        int blue = (hash3 % 256);
+        // Aplicar variación a cada canal
+        red = Math.max(0, Math.min(255, red + ((hash1 % (variation * 2 + 1)) - variation)));
+        green = Math.max(0, Math.min(255, green + ((hash2 % (variation * 2 + 1)) - variation)));
+        blue = Math.max(0, Math.min(255, blue + ((hash3 % (variation * 2 + 1)) - variation)));
         
-        // Aplicar algoritmo de contraste máximo
-        // Asegurar que al menos un canal sea muy alto y otro muy bajo
-        int maxChannel = Math.max(Math.max(red, green), blue);
-        int minChannel = Math.min(Math.min(red, green), blue);
+        // Asegurar que el color tenga suficiente saturación (no sea gris)
+        // Calcular saturación aproximada
+        int max = Math.max(Math.max(red, green), blue);
+        int min = Math.min(Math.min(red, green), blue);
+        int saturation = max - min;
         
-        if (maxChannel - minChannel < 100) {
-            // Si no hay suficiente contraste, forzar contraste
-            int channelToBoost = hash1 % 3;
-            int channelToReduce = (hash2 % 2) == 0 ? (channelToBoost + 1) % 3 : (channelToBoost + 2) % 3;
-            
-            if (channelToBoost == 0) red = 200 + (hash1 % 55);      // 200-255
-            else if (channelToBoost == 1) green = 200 + (hash2 % 55); // 200-255
-            else blue = 200 + (hash3 % 55);                         // 200-255
-            
-            if (channelToReduce == 0) red = 30 + (hash1 % 40);      // 30-70
-            else if (channelToReduce == 1) green = 30 + (hash2 % 40); // 30-70
-            else blue = 30 + (hash3 % 40);                         // 30-70
+        // Si la saturación es muy baja (color muy gris), aumentar contraste
+        if (saturation < 60) {
+            // Aumentar el canal más alto y reducir los otros para crear contraste
+            if (red == max) {
+                red = Math.min(255, red + 40);
+                green = Math.max(0, green - 30);
+                blue = Math.max(0, blue - 30);
+            } else if (green == max) {
+                green = Math.min(255, green + 40);
+                red = Math.max(0, red - 30);
+                blue = Math.max(0, blue - 30);
+            } else {
+                blue = Math.min(255, blue + 40);
+                red = Math.max(0, red - 30);
+                green = Math.max(0, green - 30);
+            }
         }
         
-        // Aplicar variaciones adicionales para máxima diferencia
-        red = Math.max(50, Math.min(255, red + (hash1 % 30) - 15));
-        green = Math.max(50, Math.min(255, green + (hash2 % 30) - 15));
-        blue = Math.max(50, Math.min(255, blue + (hash3 % 30) - 15));
-        
-        // Asegurar que no sean colores muy similares
+        // Asegurar que el color no sea muy oscuro ni muy claro
         int totalBrightness = red + green + blue;
         if (totalBrightness < 150) {
-            // Si es muy oscuro, aclarar significativamente
-            red = Math.min(255, red + 80);
-            green = Math.min(255, green + 80);
-            blue = Math.min(255, blue + 80);
-        } else if (totalBrightness > 600) {
-            // Si es muy claro, oscurecer
-            red = Math.max(50, red - 60);
-            green = Math.max(50, green - 60);
-            blue = Math.max(50, blue - 60);
+            // Si es muy oscuro, aclarar ligeramente
+            red = Math.min(255, red + 50);
+            green = Math.min(255, green + 50);
+            blue = Math.min(255, blue + 50);
+        } else if (totalBrightness > 650) {
+            // Si es muy claro, oscurecer ligeramente
+            red = Math.max(0, red - 40);
+            green = Math.max(0, green - 40);
+            blue = Math.max(0, blue - 40);
         }
         
         // Mantener alpha en 255 (opaco)

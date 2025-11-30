@@ -29,3 +29,9 @@
 
 # Firebase / Google Services
 app/google-services.json
+serviceAccountKey.json
+
+# Keystore files
+keystore.properties
+*.jks
+*.keystore
