@@ -1,0 +1,18 @@
+INSTRUCTIONS FOR APP ACCESS:
+
+1. RECOMMENDED - Google Sign-In:
+   - Open app, tap "Sign in with Google"
+   - Select any Google account
+   - Full access granted after authentication
+
+2. ALTERNATIVE - Email/Password:
+   - Email: playstore.reviewer@gmail.com
+   - Password: Reviewer123!
+
+3. AFTER LOGIN:
+   - All features accessible
+   - Dashboard, expenses, categories
+   - Works offline after sync
+
+4. NOTE: Authentication required for main features.
+

@@ -1,0 +1,15 @@
+ACCESS INSTRUCTIONS:
+
+1. Google Sign-In (Recommended):
+   - Tap "Sign in with Google"
+   - Select any Google account
+   - Full access after login
+
+2. Email/Password (Alternative):
+   - Email: playstore.reviewer@gmail.com
+   - Password: Reviewer123!
+
+3. After login: All features accessible. App works offline.
+
+4. NOTE: Authentication required for main features.
+
